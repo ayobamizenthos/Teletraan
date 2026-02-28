@@ -1,0 +1,117 @@
+<svg width="1000" height="1000" viewBox="15 15 170 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- The pure, flat architectural titanium gradient (no plastic glow) -->
+        <!-- Applied locally to each shard (objectBoundingBox), creating high contrast across the geometry -->
+        <linearGradient id="titanium_base" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFFFFF" />
+            <stop offset="20%" stop-color="#E1E1E6" />
+            <stop offset="45%" stop-color="#8E8E93" />
+            <stop offset="70%" stop-color="#48484A" />
+            <stop offset="90%" stop-color="#2C2C2E" />
+            <stop offset="100%" stop-color="#1A1A1E" />
+        </linearGradient>
+
+        <!-- HARD MACHINED BRUSHED METAL FILTER (NO ROUNDED SPECULAR LIGHTING) -->
+        <filter id="hard_machined_metal" x="-20%" y="-20%" width="140%" height="140%">
+            <!-- 1. Flat Base Gradient Graphic -->
+            <feComponentTransfer in="SourceGraphic" result="base" />
+            
+            <!-- 2. Fine Brushed Grain Pattern -->
+            <feTurbulence type="fractalNoise" baseFrequency="0.015 1.5" numOctaves="3" result="noise" />
+            <!-- keep grain subtle but visible to give the machined texture -->
+            <feColorMatrix type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0.25" result="coloredNoise" />
+            <feComposite operator="in" in="coloredNoise" in2="base" result="grain" />
+            <feBlend mode="overlay" in="grain" in2="base" result="brushed" />
+
+            <!-- 3. Razor Sharp Bright Top/Left Bevel (Machined Edge) -->
+            <feOffset dx="-0.8" dy="-0.8" in="SourceAlpha" result="offsetHighlight" />
+            <feComposite operator="out" in="SourceAlpha" in2="offsetHighlight" result="highlightMask" />
+            <feFlood flood-color="#FFFFFF" flood-opacity="0.9" result="highlightColor" />
+            <feComposite operator="in" in="highlightColor" in2="highlightMask" result="highlight" />
+
+            <!-- 4. Razor Sharp Dark Bottom/Right Bevel (Shadow Edge) -->
+            <feOffset dx="1.2" dy="1.2" in="SourceAlpha" result="offsetShadow" />
+            <feComposite operator="out" in="SourceAlpha" in2="offsetShadow" result="shadowMask" />
+            <feFlood flood-color="#050505" flood-opacity="0.95" result="shadowColor" />
+            <feComposite operator="in" in="shadowColor" in2="shadowMask" result="shadow" />
+
+            <!-- 5. Deep Ambient Drop Shadow for structural depth -->
+            <feDropShadow dx="3" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.95" result="dropShadow" />
+
+            <!-- Combine everything: Shadow behind, brushed body, sharp bevels on top -->
+            <feMerge>
+                <feMergeNode in="dropShadow" />
+                <feMergeNode in="brushed" />
+                <feMergeNode in="highlight" />
+                <feMergeNode in="shadow" />
+            </feMerge>
+        </filter>
+
+        <!-- LENS GLASS CONXEVITY GRADIENT -->
+        <radialGradient id="glass_convex" cx="40%" cy="30%" r="60%" fx="30%" fy="30%">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25" />
+            <stop offset="25%" stop-color="#8E8E93" stop-opacity="0.08" />
+            <stop offset="70%" stop-color="#0A0A0C" stop-opacity="0.7" />
+            <stop offset="100%" stop-color="#000000" stop-opacity="0.98" />
+        </radialGradient>
+
+        <!-- OPTICAL GLOW FOR INTERNAL REFLECTION -->
+        <filter id="optical_glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" />
+        </filter>
+
+        <!-- LENS RETAINING COLLAR (SMOOTH METALLIC) -->
+        <linearGradient id="lens_collar" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFFFFF" />
+            <stop offset="25%" stop-color="#A1A1A6" />
+            <stop offset="70%" stop-color="#2C2C2E" />
+            <stop offset="100%" stop-color="#000000" />
+        </linearGradient>
+    </defs>
+
+    <!-- THE PURE MACHINED TITANIUM STRUCTURE (NO PLASTIC GLOW) -->
+    <g filter="url(#hard_machined_metal)">
+        <!-- THE OUTER GRID NODES (REPRESENTING THE 6 AVZDAX PRODUCTS) -->
+        <path d="M68.04 35.36L110.85 31.21L105.71 72.12L75.75 86.00Z" fill="url(#titanium_base)" />
+        <path d="M140.00 40.00L165.00 75.00L127.00 91.00L100.00 72.00Z" fill="url(#titanium_base)" />
+        <path d="M171.96 104.64L154.15 143.79L121.29 118.88L124.25 86.00Z" fill="url(#titanium_base)" />
+        <path d="M131.96 164.64L89.15 168.79L94.29 127.88L124.25 114.00Z" fill="url(#titanium_base)" />
+        <path d="M60.00 160.00L35.00 125.00L73.00 109.00L100.00 128.00Z" fill="url(#titanium_base)" />
+        <path d="M28.04 95.36L45.85 56.21L78.71 81.12L75.75 114.00Z" fill="url(#titanium_base)" />
+
+        <!-- THE CENTRAL SOVEREIGN IRIS BEZEL -->
+        <path
+            d="M100 65C119.33 65 135 80.67 135 100C135 119.33 119.33 135 100 135C80.67 135 65 119.33 65 100C65 80.67 80.67 65 100 65ZM100 75C86.1929 75 75 86.1929 75 100C75 113.807 86.1929 125 100 125C113.807 125 125 113.807 125 100C125 86.1929 113.807 75 100 75Z"
+            fill="url(#titanium_base)" fill-rule="evenodd" />
+    </g>
+
+    <!-- INNER REALISTIC LENS MODULE (NOT MACHINED, IT'S OPTICS) -->
+    <g>
+        <!-- 0. Smooth Retaining Collar (Bridges the gap perfectly round to hide machining roughness) -->
+        <circle cx="100" cy="100" r="25.5" fill="none" stroke="url(#lens_collar)" stroke-width="2.5" />
+
+        <!-- 1. The Deep Void (Inner Optical Barrel Base) -->
+        <circle cx="100" cy="100" r="24.5" fill="#020202" />
+
+        <!-- 2. Stepped Optical Barrel Rings (Adds extreme mechanical lens realism) -->
+        <circle cx="100" cy="100" r="23" fill="none" stroke="#252528" stroke-width="1.2" />
+        <circle cx="100" cy="100" r="20" fill="none" stroke="#050505" stroke-width="2.5" />
+        <circle cx="100" cy="100" r="17" fill="none" stroke="#3A3A3C" stroke-width="0.3" opacity="0.8" />
+
+        <!-- 3. The Physical Glass Element (Convex Depth & Reflection) -->
+        <circle cx="100" cy="100" r="16.5" fill="url(#glass_convex)" />
+
+        <!-- 4. Deep Lens Core (Aperture / Inner Optics) -->
+        <g>
+            <circle cx="100" cy="100" r="8" fill="#010101" />
+            <circle cx="98" cy="98" r="5" fill="none" stroke="#4A2E65" stroke-width="1.5" opacity="0.6" filter="url(#optical_glow)" />
+            <circle cx="103" cy="103" r="3" fill="none" stroke="#2E5A65" stroke-width="1" opacity="0.5" filter="url(#optical_glow)" />
+            <circle cx="100" cy="100" r="1.5" fill="#111115" />
+        </g>
+
+        <!-- 5. Extreme Lens Glare (Curved High-Gloss Specular Reflection on the Glass Dome) -->
+        <path d="M 84 89 A 19 19 0 0 1 116 89 A 21 21 0 0 0 84 89 Z" fill="#FFFFFF" opacity="0.8" />
+        <ellipse cx="91" cy="92" rx="2.5" ry="1.2" fill="#FFFFFF" opacity="0.6" transform="rotate(-30 91 92)" />
+        <path d="M 88 111 A 15 15 0 0 0 112 111 A 14 14 0 0 1 88 111 Z" fill="#FFFFFF" opacity="0.2" />
+    </g>
+</svg>
