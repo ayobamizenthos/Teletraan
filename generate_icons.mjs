@@ -20,7 +20,7 @@ const targets = [
 
 console.log('Generating high-res icons from:', svgPath);
 
-Promise.all(targets.map(target => {
+Promise.all(targets.map(target => {/
     return sharp(svgPath)
         .resize(target.width, target.height)
         .png()

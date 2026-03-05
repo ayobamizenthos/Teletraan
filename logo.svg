@@ -1,117 +1,247 @@
-<svg width="1000" height="1000" viewBox="15 15 170 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <!-- The pure, flat architectural titanium gradient (no plastic glow) -->
-        <!-- Applied locally to each shard (objectBoundingBox), creating high contrast across the geometry -->
-        <linearGradient id="titanium_base" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FFFFFF" />
-            <stop offset="20%" stop-color="#E1E1E6" />
-            <stop offset="45%" stop-color="#8E8E93" />
-            <stop offset="70%" stop-color="#48484A" />
-            <stop offset="90%" stop-color="#2C2C2E" />
-            <stop offset="100%" stop-color="#1A1A1E" />
-        </linearGradient>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <!-- ========================================== -->
+            <!-- PREMIUM 3D METALLIC STONE GRADIENTS        -->
+            <!-- Formulated visually for specular behavior  -->
+            <!-- ========================================== -->
 
-        <!-- HARD MACHINED BRUSHED METAL FILTER (NO ROUNDED SPECULAR LIGHTING) -->
-        <filter id="hard_machined_metal" x="-20%" y="-20%" width="140%" height="140%">
-            <!-- 1. Flat Base Gradient Graphic -->
-            <feComponentTransfer in="SourceGraphic" result="base" />
-            
-            <!-- 2. Fine Brushed Grain Pattern -->
-            <feTurbulence type="fractalNoise" baseFrequency="0.015 1.5" numOctaves="3" result="noise" />
-            <!-- keep grain subtle but visible to give the machined texture -->
-            <feColorMatrix type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0.25" result="coloredNoise" />
-            <feComposite operator="in" in="coloredNoise" in2="base" result="grain" />
-            <feBlend mode="overlay" in="grain" in2="base" result="brushed" />
+            <!-- T-HEAD GRADIENTS -->
+            <!-- Left side of T-Head top catches immense glare from light source -->
+            <linearGradient id="thead-top" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#E4E9EF" />
+                <stop offset="30%" stop-color="#CED5DC" />
+                <stop offset="65%" stop-color="#8E97A2" />
+                <stop offset="100%" stop-color="#5B636C" />
+            </linearGradient>
 
-            <!-- 3. Razor Sharp Bright Top/Left Bevel (Machined Edge) -->
-            <feOffset dx="-0.8" dy="-0.8" in="SourceAlpha" result="offsetHighlight" />
-            <feComposite operator="out" in="SourceAlpha" in2="offsetHighlight" result="highlightMask" />
-            <feFlood flood-color="#FFFFFF" flood-opacity="0.9" result="highlightColor" />
-            <feComposite operator="in" in="highlightColor" in2="highlightMask" result="highlight" />
+            <!-- Diagonal striking glare on the T-Head Front Face -->
+            <linearGradient id="thead-front" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#E4E9EF" />
+                <stop offset="25%" stop-color="#C5CFDB" />
+                <stop offset="65%" stop-color="#7B8591" />
+                <stop offset="100%" stop-color="#343B43" />
+            </linearGradient>
 
-            <!-- 4. Razor Sharp Dark Bottom/Right Bevel (Shadow Edge) -->
-            <feOffset dx="1.2" dy="1.2" in="SourceAlpha" result="offsetShadow" />
-            <feComposite operator="out" in="SourceAlpha" in2="offsetShadow" result="shadowMask" />
-            <feFlood flood-color="#050505" flood-opacity="0.95" result="shadowColor" />
-            <feComposite operator="in" in="shadowColor" in2="shadowMask" result="shadow" />
+            <!-- Side illuminated and shadowed faces -->
+            <linearGradient id="thead-left" x1="100%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#A9B3BD" />
+                <stop offset="100%" stop-color="#6F7984" />
+            </linearGradient>
+            <linearGradient id="thead-right" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#24282D" />
+                <stop offset="100%" stop-color="#0E1013" />
+            </linearGradient>
 
-            <!-- 5. Deep Ambient Drop Shadow for structural depth -->
-            <feDropShadow dx="3" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.95" result="dropShadow" />
+            <!-- ========================================== -->
+            <!-- LEFT STONE GRADIENTS                       -->
+            <!-- ========================================== -->
+            <!-- Main Front Face (Recessed below T-Head) -->
+            <linearGradient id="lstone-main" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#9099A5" />
+                <stop offset="100%" stop-color="#464D56" />
+            </linearGradient>
+            <!-- Inner Bevel (Deep ambient shadow diving inward) -->
+            <linearGradient id="lstone-inner" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#3A414A" />
+                <stop offset="100%" stop-color="#1D2228" />
+            </linearGradient>
 
-            <!-- Combine everything: Shadow behind, brushed body, sharp bevels on top -->
-            <feMerge>
-                <feMergeNode in="dropShadow" />
-                <feMergeNode in="brushed" />
-                <feMergeNode in="highlight" />
-                <feMergeNode in="shadow" />
-            </feMerge>
-        </filter>
+            <!-- ========================================== -->
+            <!-- RIGHT STONE (HERO) GRADIENTS               -->
+            <!-- ========================================== -->
+            <!-- Left Hero Bevel (Extreme direct specular highlight) -->
+            <linearGradient id="rstone-hero" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF" />
+                <stop offset="100%" stop-color="#AEB7C2" />
+            </linearGradient>
+            <!-- Main Overlapping Face -->
+            <linearGradient id="rstone-main" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#97A1AC" />
+                <stop offset="100%" stop-color="#3B4149" />
+            </linearGradient>
 
-        <!-- LENS GLASS CONXEVITY GRADIENT -->
-        <radialGradient id="glass_convex" cx="40%" cy="30%" r="60%" fx="30%" fy="30%">
-            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25" />
-            <stop offset="25%" stop-color="#8E8E93" stop-opacity="0.08" />
-            <stop offset="70%" stop-color="#0A0A0C" stop-opacity="0.7" />
-            <stop offset="100%" stop-color="#000000" stop-opacity="0.98" />
-        </radialGradient>
+            <!-- Inner Deep Shadow Bevel (Behind the bright hero bevel) -->
+            <linearGradient id="rstone-inner" x1="100%" y1="0%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#21262D" />
+                <stop offset="100%" stop-color="#07080B" />
+            </linearGradient>
 
-        <!-- OPTICAL GLOW FOR INTERNAL REFLECTION -->
-        <filter id="optical_glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" />
-        </filter>
+            <!-- ========================================== -->
+            <!-- STROKE GRADIENTS (PREMIUM TAPERED ALIASING) -->
+            <!-- ========================================== -->
 
-        <!-- LENS RETAINING COLLAR (SMOOTH METALLIC) -->
-        <linearGradient id="lens_collar" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FFFFFF" />
-            <stop offset="25%" stop-color="#A1A1A6" />
-            <stop offset="70%" stop-color="#2C2C2E" />
-            <stop offset="100%" stop-color="#000000" />
-        </linearGradient>
-    </defs>
+            <!-- Horizontal center fade for the main Top Lip -->
+            <linearGradient id="glare-horizontal-center" gradientUnits="userSpaceOnUse" x1="332" y1="0" x2="692" y2="0">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.0" />
+                <stop offset="35%" stop-color="#FFFFFF" stop-opacity="1.0" />
+                <stop offset="65%" stop-color="#FFFFFF" stop-opacity="1.0" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0" />
+            </linearGradient>
 
-    <!-- THE PURE MACHINED TITANIUM STRUCTURE (NO PLASTIC GLOW) -->
-    <g filter="url(#hard_machined_metal)">
-        <!-- THE OUTER GRID NODES (REPRESENTING THE 6 AVZDAX PRODUCTS) -->
-        <path d="M68.04 35.36L110.85 31.21L105.71 72.12L75.75 86.00Z" fill="url(#titanium_base)" />
-        <path d="M140.00 40.00L165.00 75.00L127.00 91.00L100.00 72.00Z" fill="url(#titanium_base)" />
-        <path d="M171.96 104.64L154.15 143.79L121.29 118.88L124.25 86.00Z" fill="url(#titanium_base)" />
-        <path d="M131.96 164.64L89.15 168.79L94.29 127.88L124.25 114.00Z" fill="url(#titanium_base)" />
-        <path d="M60.00 160.00L35.00 125.00L73.00 109.00L100.00 128.00Z" fill="url(#titanium_base)" />
-        <path d="M28.04 95.36L45.85 56.21L78.71 81.12L75.75 114.00Z" fill="url(#titanium_base)" />
+            <!-- Vertical fade for outer slants (bright top, fade out bottom) -->
+            <linearGradient id="glare-vertical-fade-down" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1.0" />
+                <stop offset="80%" stop-color="#FFFFFF" stop-opacity="0.3" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0" />
+            </linearGradient>
 
-        <!-- THE CENTRAL SOVEREIGN IRIS BEZEL -->
-        <path
-            d="M100 65C119.33 65 135 80.67 135 100C135 119.33 119.33 135 100 135C80.67 135 65 119.33 65 100C65 80.67 80.67 65 100 65ZM100 75C86.1929 75 75 86.1929 75 100C75 113.807 86.1929 125 100 125C113.807 125 125 113.807 125 100C125 86.1929 113.807 75 100 75Z"
-            fill="url(#titanium_base)" fill-rule="evenodd" />
-    </g>
+            <!-- Vertical fade for inner pillars (fade top & bottom, bright middle) -->
+            <linearGradient id="glare-vertical-center" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.0" />
+                <stop offset="25%" stop-color="#FFFFFF" stop-opacity="1.0" />
+                <stop offset="75%" stop-color="#FFFFFF" stop-opacity="1.0" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0" />
+            </linearGradient>
 
-    <!-- INNER REALISTIC LENS MODULE (NOT MACHINED, IT'S OPTICS) -->
-    <g>
-        <!-- 0. Smooth Retaining Collar (Bridges the gap perfectly round to hide machining roughness) -->
-        <circle cx="100" cy="100" r="25.5" fill="none" stroke="url(#lens_collar)" stroke-width="2.5" />
+            <!-- Chamfer flares (bright top, fade to bottom point) -->
+            <linearGradient id="glare-chamfer-fade" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.2" />
+            </linearGradient>
 
-        <!-- 1. The Deep Void (Inner Optical Barrel Base) -->
-        <circle cx="100" cy="100" r="24.5" fill="#020202" />
+            <!-- Horizontal bottom lip fade (bright at center gap, fading out to edges) -->
+            <linearGradient id="glare-horizontal-outward" gradientUnits="userSpaceOnUse" x1="490" y1="0" x2="442"
+                y2="0">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0" />
+            </linearGradient>
+            <linearGradient id="glare-horizontal-outward-right" gradientUnits="userSpaceOnUse" x1="545" y1="0" x2="608"
+                y2="0">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0" />
+            </linearGradient>
 
-        <!-- 2. Stepped Optical Barrel Rings (Adds extreme mechanical lens realism) -->
-        <circle cx="100" cy="100" r="23" fill="none" stroke="#252528" stroke-width="1.2" />
-        <circle cx="100" cy="100" r="20" fill="none" stroke="#050505" stroke-width="2.5" />
-        <circle cx="100" cy="100" r="17" fill="none" stroke="#3A3A3C" stroke-width="0.3" opacity="0.8" />
+            <!-- Soft drop shadow for overlapping 3D elements (creating depth where right leg overlaps T-head) -->
+            <filter id="overlap-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="-5" dy="15" stdDeviation="12" flood-color="#000000" flood-opacity="0.55" />
+            </filter>
 
-        <!-- 3. The Physical Glass Element (Convex Depth & Reflection) -->
-        <circle cx="100" cy="100" r="16.5" fill="url(#glass_convex)" />
 
-        <!-- 4. Deep Lens Core (Aperture / Inner Optics) -->
-        <g>
-            <circle cx="100" cy="100" r="8" fill="#010101" />
-            <circle cx="98" cy="98" r="5" fill="none" stroke="#4A2E65" stroke-width="1.5" opacity="0.6" filter="url(#optical_glow)" />
-            <circle cx="103" cy="103" r="3" fill="none" stroke="#2E5A65" stroke-width="1" opacity="0.5" filter="url(#optical_glow)" />
-            <circle cx="100" cy="100" r="1.5" fill="#111115" />
+        </defs>
+
+        <g transform="translate(0, -10)">
+
+            <!-- ============================================================== -->
+            <!-- 1. LEFT STONE (DETACHED BASE)                                  -->
+            <!-- Formed without the leftmost flat bevel as requested            -->
+            <!-- Gap is strictly EMPTY transparent white connecting above it.   -->
+            <!-- ============================================================== -->
+            <!-- Center Main Face -->
+            <!-- Adjusted inner X-coord so it forms an exactly 48-pixel width (536-488=48 vs 483-435=48) -->
+            <polygon points="442,415 490,415 490,681 442,681" fill="url(#lstone-main)" />
+
+            <!-- Deep Inner Fold forming the shaded inner side of the Left Stone -->
+            <!-- Top slants downwards towards the center gap matching the reference angle -->
+            <polygon points="490,415 512,428 512,681 490,681" fill="url(#lstone-inner)" />
+
+            <!-- Left Spike Chamfers (Mathematically converging to bottom center point) -->
+            <!-- Converging strictly to bottom tip: (512, 750) -->
+            <polygon points="442,681 490,681 512,750" fill="#404750" />
+            <polygon points="490,681 512,681 512,750" fill="#1D2228" />
+
+
+            <!-- ============================================================== -->
+            <!-- 2. TOP HORIZONTAL BAR (T-HEAD)                                 -->
+            <!-- Drawn over the empty gap to provide natural overhang           -->
+            <!-- ============================================================== -->
+            <!-- Top Face -->
+            <polygon points="260,260 764,260 692,340 332,340" fill="url(#thead-top)" />
+
+            <!-- Side Planks -->
+            <!-- Left Side -->
+            <polygon points="260,260 332,340 332,395 260,315" fill="url(#thead-left)" />
+            <!-- Right Side -->
+            <polygon points="764,260 692,340 692,395 764,315" fill="url(#thead-right)" />
+
+            <!-- Main Front Face -->
+            <polygon points="332,340 692,340 692,395 332,395" fill="url(#thead-front)" />
+
+
+            <!-- ============================================================== -->
+            <!-- 3. OVERLAPPING RIGHT STONE (PARTIAL OVERLAP)                   -->
+            <!-- Capturing the specific asymmetrical overlap where only the     -->
+            <!-- bright inner bevel reaches the top of the T-head, and the      -->
+            <!-- main solid face slants downward precisely to the bottom of it. -->
+            <!-- ============================================================== -->
+
+            <!-- The rstone-inner shadow fold is unnecessary since lstone-inner directly reaches X=512 from Y=350 to Y=680 -->
+
+            <g filter="url(#overlap-shadow)">
+                <!-- Hero Left Bevel -->
+                <!-- Forms the upward-slanting left side of the peak, overlapping the T-head -->
+                <!-- Ascends exactly from the vertical center seam at X=512 -->
+                <polygon points="512,385 545,365 545,681 512,681" fill="url(#rstone-hero)" />
+
+                <!-- Main Solid Front Face -->
+                <!-- Forms the downward-slanting right side of the peak -->
+                <polygon points="545,365 608,432 608,681 545,681" fill="url(#rstone-main)" />
+
+                <!-- Right Spike Chamfers (Symmetrical matching the Left spike) -->
+                <!-- Same bottom point convergence: (512, 750) -->
+                <polygon points="512,681 545,681 512,750" fill="#B0B9C4" />
+                <polygon points="545,681 608,681 512,750" fill="#2E3339" />
+            </g>
+
+
+            <!-- ============================================================== -->
+            <!-- 4. WHITE SPECULAR RIDGE HIGHLIGHTS                             -->
+            <!-- STRICTLY APPLIED ONLY TO GLARING EDGES, NOT ENTIRE BORDERS     -->
+            <!-- Simulates photorealistic stone-light specular reflections      -->
+            <!-- ============================================================== -->
+
+            <!-- A. Top Bar Ridge -->
+            <!-- Highlight removed to match clean original design -->
+
+            <!-- Upper Lip Front Edge catching main glare (brightest on the left, fading towards the darker side) -->
+            <!-- Physically tapers to 0 at the tips and flares in the center using dual bezier curve to create a stylish lens flare wedge -->
+            <path d="M 332,340 Q 512,336.5 692,340 Q 512,343.5 332,340 Z" fill="url(#glare-horizontal-center)" />
+
+            <!-- Sharp Left Side upper vertical glare -->
+            <path d="M 260,260 L 264,260 Q 298,300 332,340 Z" fill="url(#glare-vertical-fade-down)" />
+
+            <!-- Sharp Right Side upper vertical glare -->
+            <path d="M 764,260 L 760,260 Q 726,300 692,340 Z" fill="url(#glare-vertical-fade-down)" />
+
+            <!-- Left front lateral edge glare -->
+            <path d="M 332,340 L 336,340 L 332,395 Z" fill="url(#glare-vertical-fade-down)" />
+
+            <!-- Right front lateral edge glare -->
+            <path d="M 692,340 L 688,340 L 692,395 Z" fill="url(#glare-vertical-fade-down)" />
+
+
+            <!-- B. Left Stone Edges -->
+            <!-- Top edge highlight removed for a fully smooth premium blend -->
+
+            <!-- Outer-most boundary highlighting the shape breaking the void -->
+            <!-- Highlight removed to match clean original design -->
+
+            <!-- Thick inner vertical boundary line defining the edge of the gap -->
+            <!-- Physically tapers using an ultra-smooth quadratic bezier curve for extreme premium look -->
+            <path d="M 490,415 Q 483,547.5 490,680 Z" fill="url(#glare-vertical-center)" />
+
+            <!-- Horizontal bottom lip glare (left leg) sleek tapered curve -->
+            <path d="M 490,681 L 490,676 Q 460,677 442,681 Z" fill="url(#glare-horizontal-outward)" />
+
+            <!-- Left side of the inner V chamfer, tapered to sharp point at the bottom tip -->
+            <path d="M 490,680 L 493,680 L 512,750 Z" fill="url(#glare-chamfer-fade)" />
+
+
+            <!-- C. Right Stone Hero Edges -->
+            <!-- Intense white flare splitting vertically exactly between the left gap and the right arm -->
+            <!-- Highlight removed to match clean original design -->
+
+            <!-- The diagonal top border perfectly scoring the gap below the T-Head -->
+            <!-- Highlight removed for realistic blending -->
+
+            <!-- Intense vertical seam between the bright Left Bevel and Main face of Right Stone -->
+            <!-- Physically tapers using an ultra-smooth quadratic bezier curve for extreme premium look -->
+            <path d="M 545,365 Q 552,522.5 545,680 Z" fill="url(#glare-vertical-center)" />
+
+            <!-- Horizontal bottom lip glare (right leg) sleek tapered curve -->
+            <path d="M 545,681 L 545,676 Q 575,677 608,681 Z" fill="url(#glare-horizontal-outward-right)" />
+
+            <!-- Right side of the inner V chamfer, tapered to sharp point at the bottom tip -->
+            <path d="M 545,680 L 542,680 L 512,750 Z" fill="url(#glare-chamfer-fade)" />
+
         </g>
-
-        <!-- 5. Extreme Lens Glare (Curved High-Gloss Specular Reflection on the Glass Dome) -->
-        <path d="M 84 89 A 19 19 0 0 1 116 89 A 21 21 0 0 0 84 89 Z" fill="#FFFFFF" opacity="0.8" />
-        <ellipse cx="91" cy="92" rx="2.5" ry="1.2" fill="#FFFFFF" opacity="0.6" transform="rotate(-30 91 92)" />
-        <path d="M 88 111 A 15 15 0 0 0 112 111 A 14 14 0 0 1 88 111 Z" fill="#FFFFFF" opacity="0.2" />
-    </g>
-</svg>
+    </svg>
