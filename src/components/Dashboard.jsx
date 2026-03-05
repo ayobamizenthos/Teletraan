@@ -27,76 +27,7 @@ const RfIcon = ({ size, className }) => <img src={rfIcon} className={className} 
 const SaIcon = ({ size, className }) => <img src={saIcon} className={className} style={{ width: size, height: size }} alt="SA" />
 const DmIcon = ({ size, className }) => <img src={dmIcon} className={className} style={{ width: size, height: size }} alt="DM" />
 
-const logPool = [
-    { title: 'New device pair', type: 'system' },
-    { title: 'Motion detected', type: 'alert' },
-    { title: 'Unknown face', type: 'alert' },
-    { title: 'Signal restored', type: 'system' },
-    { title: 'Signal lost', type: 'alert' },
-    { title: 'Door opened', type: 'system' },
-    { title: 'Terminal entry', type: 'system' },
-    { title: 'Key updated', type: 'system' },
-    { title: 'Scan active', type: 'system' },
-    { title: 'System ready', type: 'system' },
-];
-
-const navGroups = [
-    {
-        header: "Surveillance",
-        items: [
-            { icon: Cctv, label: "Security Cameras" },
-            { icon: Radio, label: "Primus" },
-            { icon: RfIcon, label: "Recorded Footage" }
-        ]
-    },
-    {
-        header: "Alerts & Log",
-        items: [
-            { icon: SaIcon, label: "Security Alerts" },
-            { icon: FileText, label: "Alert Log" }
-        ]
-    },
-    {
-        header: "Access Control",
-        items: [
-            { icon: Key, label: "Manage Access" }
-        ]
-    },
-    {
-        header: "Teams",
-        items: [
-            { icon: Users, label: "User & Roles" }
-        ]
-    },
-    {
-        header: "Settings",
-        items: [
-            { icon: Settings, label: "System Settings" },
-            { icon: DmIcon, label: "Device Management" }
-        ]
-    }
-];
-
-const DigitalClock = React.memo(() => {
-    const [time, setTime] = useState('');
-    useEffect(() => {
-        const update = () => {
-            const d = new Date();
-            const date = d.toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }).replace(/-/g, '.');
-            const timeStr = d.toLocaleTimeString('en-GB', {
-                hour: '2-digit', minute: '2-digit', second: '2-digit',
-                hour12: false, timeZone: 'Africa/Lagos'
-            });
-            setTime(`${date} ${timeStr}`);
-        };
-        const t = setInterval(update, 1000);
-        update();
-        return () => clearInterval(t);
-    }, []);
-    return <span className="text-[11px] font-bold text-white/60 group-hover/time:text-white/90 font-mono tracking-tight tabular-nums transition-colors">{time.split(' ')[1]}</span>;
-});
-
-const FeedCell = React.memo(({ label, active = true, alert = false, offline = false, systemNet = 100, image = null }) => {
+const FeedCell = ({ label, active = true, alert = false, offline = false, systemNet = 100, image = null }) => {
     const camId = useRef(`OX-${Math.random().toString(36).substr(2, 4).toUpperCase()}-${Math.random().toString(10).substr(2, 2)}`);
 
     const [signal, setSignal] = useState(4);
@@ -105,23 +36,23 @@ const FeedCell = React.memo(({ label, active = true, alert = false, offline = fa
     useEffect(() => {
         if (isActuallyOffline) return;
         const interval = setInterval(() => {
-            setSignal(s => Math.random() > 0.65 ? 4 : 3);
-        }, 3000 + Math.random() * 2000);
+            setSignal(Math.random() > 0.65 ? 4 : 3);
+        }, 1200 + Math.random() * 2000);
         return () => clearInterval(interval);
     }, [isActuallyOffline]);
 
     return (
         <div className="relative w-full h-full bg-[#111113] overflow-hidden flex flex-col border border-white/[0.15] rounded-[4px] group transition-all duration-500 hover:border-white/20">
             {}
-            <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.08]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
+            <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.15]"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
             />
             {isActuallyOffline ? (
                 <>
                     {}
                     <div className="absolute inset-0 bg-[#111113]">
-                        <div className="w-full h-full opacity-[0.1]"
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }}
+                        <div className="w-full h-full opacity-[0.2]"
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }}
                         />
                         {}
                         <div className="absolute top-4 left-6 right-6 flex justify-between items-start z-20">
@@ -212,37 +143,12 @@ const FeedCell = React.memo(({ label, active = true, alert = false, offline = fa
             <div className={`absolute bottom-3 right-3 w-4 h-4 border-b border-r ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
         </div>
     );
-});
+};
 
 const Dashboard = ({ onLogout, onRefresh }) => {
+    const [time, setTime] = useState('')
     const [sidebarHover, setSidebarHover] = useState(false)
     const [sidebarInitOpen, setSidebarInitOpen] = useState(true)
-
-    const allSearchItems = React.useMemo(() => [
-
-        { category: 'Pages', label: 'Security Cameras', keywords: 'cameras surveillance cctv live feed', icon: Cctv, action: () => { setActiveTab('Security Cameras'); setSearchQuery('') } },
-        { category: 'Pages', label: 'Primus', keywords: 'primus connection hub network', icon: Radio, action: () => { setActiveTab('Primus'); setSearchQuery('') } },
-        { category: 'Pages', label: 'Recorded Footage', keywords: 'recorded footage playback video history', icon: Video, action: () => { setActiveTab('Recorded Footage'); setSearchQuery('') } },
-        { category: 'Pages', label: 'Security Alerts', keywords: 'security alerts warnings notifications', icon: Shield, action: () => { setActiveTab('Security Alerts'); setSearchQuery('') } },
-        { category: 'Pages', label: 'Alert Log', keywords: 'alert log history events timeline', icon: FileText, action: () => { setActiveTab('Alert Log'); setSearchQuery('') } },
-        { category: 'Pages', label: 'Manage Access', keywords: 'access control permissions keys', icon: Key, action: () => { setActiveTab('Manage Access'); setSearchQuery('') } },
-        { category: 'Pages', label: 'User & Roles', keywords: 'users roles teams members admin', icon: Users, action: () => { setActiveTab('User & Roles'); setSearchQuery('') } },
-        { category: 'Pages', label: 'System Settings', keywords: 'system settings configuration preferences', icon: Settings, action: () => { setActiveTab('System Settings'); setSearchQuery('') } },
-        { category: 'Pages', label: 'Device Management', keywords: 'device management hardware sensors', icon: Settings, action: () => { setActiveTab('Device Management'); setSearchQuery('') } },
-
-        { category: 'Cameras', label: 'Basement Camera', keywords: 'basement cam feed', icon: Video, action: () => { setActiveGridCamera('Basement'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-        { category: 'Cameras', label: 'Entrance Camera', keywords: 'entrance front cam feed', icon: Video, action: () => { setActiveGridCamera('Entrance'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-        { category: 'Cameras', label: 'Exit Camera', keywords: 'exit back cam feed', icon: Video, action: () => { setActiveGridCamera('Exit'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-        { category: 'Cameras', label: 'Garage Camera', keywords: 'garage parking cam feed', icon: Video, action: () => { setActiveGridCamera('Garage'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-        { category: 'Cameras', label: 'Staircase Camera', keywords: 'staircase stairs cam feed', icon: Video, action: () => { setActiveGridCamera('Staircase'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-
-        { category: 'Profile', label: userProfile.name, keywords: 'profile account user me my avatar photo picture settings logout', icon: Users, isProfile: true, action: () => { setIsProfileOpen(true); setSearchQuery('') } },
-
-        { category: 'Actions', label: 'Notifications', keywords: 'notifications alerts messages inbox bell', icon: Bell, action: () => { setIsNotificationsOpen(true); setSearchQuery('') } },
-        { category: 'Actions', label: 'Connect to Primus', keywords: 'connect primus network pair hub', icon: Radio, action: () => { setIsPrimusConnectOpen(true); setSearchQuery('') } },
-        { category: 'Actions', label: 'Add Camera', keywords: 'add camera new setup device', icon: Plus, action: () => { setIsSetupOpen(true); setSearchQuery('') } },
-        { category: 'Actions', label: 'Log Out', keywords: 'logout sign out exit session end', icon: LogOut, action: () => { setIsLogoutModalOpen(true); setSearchQuery('') } },
-    ], [userProfile.name]);
 
     const [currentLocation, setCurrentLocation] = useState('All')
     const [isLocationOpen, setIsLocationOpen] = useState(false)
@@ -383,19 +289,17 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     const lastReceivedStatsRef = useRef({ net: 100, uptime: 0 })
 
     useEffect(() => {
-
         const timer = setTimeout(() => {
             isBootingRef.current = false
             setSystemStats(lastReceivedStatsRef.current)
         }, 2000)
         return () => clearTimeout(timer)
     }, [])
-
+    const [globalSignalBars, setGlobalSignalBars] = useState(4)
     const [gridNetStatus, setGridNetStatus] = useState([0, 0, 0, 0])
 
     useEffect(() => {
         if (systemStats.net > 0 && !isReloading) {
-
             const t1 = setTimeout(() => setGridNetStatus(prev => [100, prev[1], prev[2], prev[3]]), 100)
             const t2 = setTimeout(() => setGridNetStatus(prev => [100, 100, prev[2], prev[3]]), 600)
             const t3 = setTimeout(() => setGridNetStatus(prev => [100, 100, 100, prev[3]]), 1100)
@@ -430,7 +334,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     useEffect(() => {
         const timer = setTimeout(() => setSidebarInitOpen(false), 5000)
-        return () => clearTimeout(timer)
+        const signalTimer = setInterval(() => setGlobalSignalBars(Math.random() > 0.65 ? 4 : 3), 1500)
+        return () => {
+            clearTimeout(timer)
+            clearInterval(signalTimer)
+        }
     }, [])
 
     const sidebarOpen = sidebarHover || sidebarInitOpen
@@ -469,11 +377,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     const handleSoftReload = React.useCallback(() => {
         setIsReloading(true)
-
         setSystemStats(prev => ({ ...prev, net: 0 }))
         prevNetRef.current = 0
         setShowPrimusToast(false)
-
         setTimeout(() => {
             if (onRefresh) onRefresh()
             setIsReloading(false)
@@ -513,7 +419,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     }, [handleSoftReload])
 
     useEffect(() => {
-
         if (prevNetRef.current !== undefined && prevNetRef.current !== systemStats.net) {
 
             if (window.electron && window.electron.windowShake) {
@@ -553,32 +458,26 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-
             if (e.ctrlKey && e.key.toLowerCase() === 'l') {
                 e.preventDefault();
                 onLogout();
             }
-
             if (e.ctrlKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault();
                 window.api?.setNetworkState?.(false);
             }
-
             if (e.ctrlKey && e.key.toLowerCase() === 'c') {
                 e.preventDefault();
                 window.api?.setNetworkState?.(true);
             }
-
             if (e.ctrlKey && e.key.toLowerCase() === 'p') {
                 e.preventDefault();
                 setIsProfileOpen(true);
             }
-
             if (e.ctrlKey && e.key.toLowerCase() === 'n') {
                 e.preventDefault();
                 setIsNotificationsOpen(true);
             }
-
             if (e.ctrlKey && e.key.toLowerCase() === 'r') {
                 e.preventDefault();
                 handleSoftReload();
@@ -668,6 +567,39 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     }, [])
 
     useEffect(() => {
+        const update = () => {
+            const d = new Date()
+            const date = d.toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }).replace(/-/g, '.')
+            const time = d.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZone: 'Africa/Lagos'
+            })
+            setTime(`${date} ${time}`)
+        }
+        const t = setInterval(update, 1000)
+        update()
+        return () => clearInterval(t)
+    }, [])
+
+    useEffect(() => {
+        const logPool = [
+            { title: 'Unknown face detected', type: 'alert' },
+            { title: 'Signal lost', type: 'alert' },
+            { title: 'Signal restored', type: 'system' },
+            { title: 'Motion detected', type: 'alert' },
+            { title: 'Door locked', type: 'system' },
+            { title: 'Scan approved', type: 'system' },
+            { title: 'Link success', type: 'system' },
+            { title: 'Sync complete', type: 'system' },
+            { title: 'Access denied', type: 'alert' },
+            { title: 'Key updated', type: 'system' },
+            { title: 'Scan active', type: 'system' },
+            { title: 'System ready', type: 'system' },
+        ]
+
         let timeoutId
 
         const addLog = () => {
@@ -692,6 +624,43 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     const locations = ["All", "Entrance", "Exit", "Garage", "Basement"]
     const cameras = ["All cameras", "7368770-b53e-4b3b-9096-c81cbd852edb"]
 
+    const navGroups = [
+        {
+            header: "Surveillance",
+            items: [
+                { icon: Cctv, label: "Security Cameras" },
+                { icon: Radio, label: "Primus" },
+                { icon: RfIcon, label: "Recorded Footage" }
+            ]
+        },
+        {
+            header: "Alerts & Log",
+            items: [
+                { icon: SaIcon, label: "Security Alerts" },
+                { icon: FileText, label: "Alert Log" }
+            ]
+        },
+        {
+            header: "Access Control",
+            items: [
+                { icon: Key, label: "Manage Access" }
+            ]
+        },
+        {
+            header: "Teams",
+            items: [
+                { icon: Users, label: "User & Roles" }
+            ]
+        },
+        {
+            header: "Settings",
+            items: [
+                { icon: Settings, label: "System Settings" },
+                { icon: DmIcon, label: "Device Management" }
+            ]
+        }
+    ]
+
     const activeItem = navGroups.flatMap(group => group.items).find(item => item.label === activeTab)
     const ActiveIcon = activeItem?.icon
 
@@ -709,13 +678,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
             <motion.nav
                 onHoverStart={() => setSidebarHover(true)}
                 onHoverEnd={() => setSidebarHover(false)}
-                initial={{ x: -100, opacity: 0, width: 300 }}
-                animate={{ x: 0, opacity: 1, width: (sidebarHover || sidebarInitOpen) ? 300 : 82 }}
-                transition={{
-                    x: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-                    opacity: { duration: 0.8 },
-                    width: { type: "spring", stiffness: 120, damping: 24 }
-                }}
+                initial={{ width: 300 }}
+                animate={{ width: (sidebarHover || sidebarInitOpen) ? 300 : 82 }}
+                transition={{ type: "spring", stiffness: 120, damping: 24 }}
                 className="h-full bg-[#111113] flex flex-col pb-6 shrink-0 z-40 relative shadow-[2px_0_20px_rgba(0,0,0,0.5)] rounded-r-2xl"
             >
                 {}
@@ -723,18 +688,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                 {}
                 <div className="h-20 mb-36 flex items-center whitespace-nowrap transition-all duration-300 z-50 shrink-0 select-none overflow-visible w-full">
                     {}
-                    <div className="w-[82px] shrink-0 flex items-center justify-center pointer-events-none" style={{ perspective: '1000px' }}>
+                    <div className="w-[82px] shrink-0 flex items-center justify-center pointer-events-none">
                         <motion.img
-                            layoutId="unified-logo"
                             src={teletraanLogo}
-                            initial={{ rotateY: 0 }}
-                            animate={{ rotateY: sidebarOpen ? 360 : 0 }}
-                            transition={{
-                                rotateY: { duration: 0.8, ease: "easeOut" },
-                                layout: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
-                            }}
+                            initial={{ rotate: 0 }}
+                            animate={{ rotate: sidebarOpen ? 360 : 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
                             className="w-[60px] h-[60px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
-                            style={{ transformStyle: 'preserve-3d' }}
                             alt="Teletraan"
                         />
                     </div>
@@ -976,6 +936,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             {}
                             <div className="w-[1px] h-4 bg-white/20" />
 
+                            {}
                             <div
                                 className="flex items-center gap-1.5 px-2.5 h-8 rounded-[2px] transition-all duration-300 group/time cursor-default"
                             >
@@ -984,7 +945,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     className="text-white/60 group-hover/time:text-white/80 transition-colors duration-300"
                                     strokeWidth={2}
                                 />
-                                <DigitalClock />
+                                <span className="text-[11px] font-bold text-white/60 group-hover/time:text-white/90 font-mono tracking-tight tabular-nums transition-colors">
+                                    {time.split(' ')[1]}
+                                </span>
                             </div>
                         </div>
 
@@ -1036,12 +999,37 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         {}
                         <AnimatePresence>
                             {searchQuery && (() => {
-                                const q = searchQuery.toLowerCase();
+                                const allSearchItems = [
+                                    { category: 'Pages', label: 'Security Cameras', keywords: 'cameras surveillance cctv live feed', icon: Cctv, action: () => { setActiveTab('Security Cameras'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'Primus', keywords: 'primus connection hub network', icon: Radio, action: () => { setActiveTab('Primus'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'Recorded Footage', keywords: 'recorded footage playback video history', icon: Video, action: () => { setActiveTab('Recorded Footage'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'Security Alerts', keywords: 'security alerts warnings notifications', icon: Shield, action: () => { setActiveTab('Security Alerts'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'Alert Log', keywords: 'alert log history events timeline', icon: FileText, action: () => { setActiveTab('Alert Log'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'Manage Access', keywords: 'access control permissions keys', icon: Key, action: () => { setActiveTab('Manage Access'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'User & Roles', keywords: 'users roles teams members admin', icon: Users, action: () => { setActiveTab('User & Roles'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'System Settings', keywords: 'system settings configuration preferences', icon: Settings, action: () => { setActiveTab('System Settings'); setSearchQuery('') } },
+                                    { category: 'Pages', label: 'Device Management', keywords: 'device management hardware sensors', icon: Settings, action: () => { setActiveTab('Device Management'); setSearchQuery('') } },
+
+                                    { category: 'Cameras', label: 'Basement Camera', keywords: 'basement cam feed', icon: Video, action: () => { setActiveGridCamera('Basement'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+                                    { category: 'Cameras', label: 'Entrance Camera', keywords: 'entrance front cam feed', icon: Video, action: () => { setActiveGridCamera('Entrance'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+                                    { category: 'Cameras', label: 'Exit Camera', keywords: 'exit back cam feed', icon: Video, action: () => { setActiveGridCamera('Exit'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+                                    { category: 'Cameras', label: 'Garage Camera', keywords: 'garage parking cam feed', icon: Video, action: () => { setActiveGridCamera('Garage'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+                                    { category: 'Cameras', label: 'Staircase Camera', keywords: 'staircase stairs cam feed', icon: Video, action: () => { setActiveGridCamera('Staircase'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+
+                                    { category: 'Profile', label: userProfile.name, keywords: 'profile account user me my avatar photo picture settings logout', icon: Users, isProfile: true, action: () => { setIsProfileOpen(true); setSearchQuery('') } },
+
+                                    { category: 'Actions', label: 'Notifications', keywords: 'notifications alerts messages inbox bell', icon: Bell, action: () => { setIsNotificationsOpen(true); setSearchQuery('') } },
+                                    { category: 'Actions', label: 'Connect to Primus', keywords: 'connect primus network pair hub', icon: Radio, action: () => { setIsPrimusConnectOpen(true); setSearchQuery('') } },
+                                    { category: 'Actions', label: 'Add Camera', keywords: 'add camera new setup device', icon: Plus, action: () => { setIsSetupOpen(true); setSearchQuery('') } },
+                                    { category: 'Actions', label: 'Log Out', keywords: 'logout sign out exit session end', icon: LogOut, action: () => { setIsLogoutModalOpen(true); setSearchQuery('') } },
+                                ]
+
+                                const q = searchQuery.toLowerCase()
                                 const filtered = allSearchItems.filter(item =>
                                     item.label.toLowerCase().includes(q) ||
                                     item.keywords.toLowerCase().includes(q) ||
                                     item.category.toLowerCase().includes(q)
-                                );
+                                )
 
                                 const grouped = filtered.reduce((acc, item) => {
                                     if (!acc[item.category]) acc[item.category] = []
@@ -1078,7 +1066,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                         {items.map((item, i) => (
                                                             item.isProfile ? (
-                                                                
                                                                 <button
                                                                     key={`${category}-${i}`}
                                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); item.action(); }}
@@ -1098,7 +1085,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                                     <ArrowRight size={14} className="text-[#444] group-hover:text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all shrink-0 pointer-events-none" />
                                                                 </button>
                                                             ) : (
-                                                                
                                                                 <button
                                                                     key={`${category}-${i}`}
                                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); item.action(); }}
@@ -1201,7 +1187,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/10 z-20 pointer-events-none" />
 
                                 {(currentCamera !== 'All cameras' || currentLocation !== 'All') ? (
-
                                     <div className="relative w-full h-full bg-void p-2">
                                         {}
                                         <div className="absolute inset-0 opacity-[0.08]"
@@ -1355,7 +1340,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     }
                                 }}
                                 disabled={systemStats.net === 0}
-                                className={`relative group px-8 py-3 bg-transparent border overflow-hidden rounded-[2px] flex items-center gap-4 transition-all duration-500 
+                                className={`relative group px-8 py-3 bg-transparent border overflow-hidden rounded-[2px] flex items-center gap-4 transition-all duration-500
                                     ${systemStats.net > 0
                                         ? 'border-white cursor-pointer'
                                         : 'border-white/10 cursor-not-allowed'}`}
@@ -1367,11 +1352,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
                                 {}
                                 <div className="relative z-10 flex items-center gap-3">
-                                    <span className={`text-[14px] font-mono font-bold tracking-[0.2em] uppercase transition-colors duration-300 
+                                    <span className={`text-[14px] font-mono font-bold tracking-[0.2em] uppercase transition-colors duration-300
                                         ${systemStats.net > 0 ? 'text-black group-hover:text-white' : 'text-white/20'}`}>
                                         {systemStats.net > 0 ? 'Connect' : 'System Offline'}
                                     </span>
-                                    <ArrowRight size={18} className={`transition-all duration-300 
+                                    <ArrowRight size={18} className={`transition-all duration-300
                                         ${systemStats.net > 0 ? 'text-black group-hover:text-white group-hover:translate-x-1' : 'text-white/10'}`} />
                                 </div>
 
@@ -1492,7 +1477,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             <button
                                                 onClick={() => {
                                                     setPrimusConnectStep(2)
-
                                                     setTimeout(() => {
                                                         setPrimusConnectStep(3)
                                                     }, 2500)
@@ -2774,19 +2758,31 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             transition={{ duration: 0.8, ease: "easeInOut" }}
                             className="fixed inset-0 z-[2000] flex items-center justify-center bg-[#111113]/50 backdrop-blur-[40px]"
                         >
-                            <motion.div className="relative z-10 flex items-center justify-center">
-                                <motion.img
-                                    layoutId="unified-logo"
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0, filter: 'blur(20px)' }}
+                                animate={{
+                                    scale: [0.85, 0.9, 0.85],
+                                    opacity: [0.05, 0.12, 0.05],
+                                    filter: ['blur(4px)', 'blur(8px)', 'blur(4px)']
+                                }}
+                                transition={{
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                className="relative"
+                            >
+                                <img
                                     src={teletraanLogo}
-                                    className="w-[240px] h-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(20px) grayscale(100%)' }}
-                                    animate={{ opacity: 0.4, scale: 0.95, filter: 'blur(6px) grayscale(100%)' }}
-                                    transition={{
-                                        duration: 1.5,
-                                        ease: "easeOut",
-                                        layout: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
-                                    }}
+                                    className="w-[600px] h-[600px] grayscale brightness-200"
                                     alt="Teletraan Spectral Logo"
+                                />
+
+                                {}
+                                <motion.div
+                                    animate={{ top: ["-10%", "110%"] }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                    className="absolute left-0 right-0 h-[2px] bg-white/20 blur-[1px] z-10"
                                 />
                             </motion.div>
 
