@@ -27,7 +27,76 @@ const RfIcon = ({ size, className }) => <img src={rfIcon} className={className} 
 const SaIcon = ({ size, className }) => <img src={saIcon} className={className} style={{ width: size, height: size }} alt="SA" />
 const DmIcon = ({ size, className }) => <img src={dmIcon} className={className} style={{ width: size, height: size }} alt="DM" />
 
-const FeedCell = ({ label, active = true, alert = false, offline = false, systemNet = 100, image = null }) => {
+const logPool = [
+    { title: 'New device pair', type: 'system' },
+    { title: 'Motion detected', type: 'alert' },
+    { title: 'Unknown face', type: 'alert' },
+    { title: 'Signal restored', type: 'system' },
+    { title: 'Signal lost', type: 'alert' },
+    { title: 'Door opened', type: 'system' },
+    { title: 'Terminal entry', type: 'system' },
+    { title: 'Key updated', type: 'system' },
+    { title: 'Scan active', type: 'system' },
+    { title: 'System ready', type: 'system' },
+];
+
+const navGroups = [
+    {
+        header: "Surveillance",
+        items: [
+            { icon: Cctv, label: "Security Cameras" },
+            { icon: Radio, label: "Primus" },
+            { icon: RfIcon, label: "Recorded Footage" }
+        ]
+    },
+    {
+        header: "Alerts & Log",
+        items: [
+            { icon: SaIcon, label: "Security Alerts" },
+            { icon: FileText, label: "Alert Log" }
+        ]
+    },
+    {
+        header: "Access Control",
+        items: [
+            { icon: Key, label: "Manage Access" }
+        ]
+    },
+    {
+        header: "Teams",
+        items: [
+            { icon: Users, label: "User & Roles" }
+        ]
+    },
+    {
+        header: "Settings",
+        items: [
+            { icon: Settings, label: "System Settings" },
+            { icon: DmIcon, label: "Device Management" }
+        ]
+    }
+];
+
+const DigitalClock = React.memo(() => {
+    const [time, setTime] = useState('');
+    useEffect(() => {
+        const update = () => {
+            const d = new Date();
+            const date = d.toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }).replace(/-/g, '.');
+            const timeStr = d.toLocaleTimeString('en-GB', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false, timeZone: 'Africa/Lagos'
+            });
+            setTime(`${date} ${timeStr}`);
+        };
+        const t = setInterval(update, 1000);
+        update();
+        return () => clearInterval(t);
+    }, []);
+    return <span className="text-[11px] font-bold text-white/60 group-hover/time:text-white/90 font-mono tracking-tight tabular-nums transition-colors">{time.split(' ')[1]}</span>;
+});
+
+const FeedCell = React.memo(({ label, active = true, alert = false, offline = false, systemNet = 100, image = null }) => {
     const camId = useRef(`OX-${Math.random().toString(36).substr(2, 4).toUpperCase()}-${Math.random().toString(10).substr(2, 2)}`);
 
     const [signal, setSignal] = useState(4);
@@ -36,25 +105,25 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
     useEffect(() => {
         if (isActuallyOffline) return;
         const interval = setInterval(() => {
-            setSignal(Math.random() > 0.65 ? 4 : 3);
-        }, 1200 + Math.random() * 2000);
+            setSignal(s => Math.random() > 0.65 ? 4 : 3);
+        }, 3000 + Math.random() * 2000);
         return () => clearInterval(interval);
     }, [isActuallyOffline]);
 
     return (
         <div className="relative w-full h-full bg-[#111113] overflow-hidden flex flex-col border border-white/[0.15] rounded-[4px] group transition-all duration-500 hover:border-white/20">
-            {}
-            <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.15]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
+            { }
+            <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.08]"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
             />
             {isActuallyOffline ? (
                 <>
-                    {}
+                    { }
                     <div className="absolute inset-0 bg-[#111113]">
-                        <div className="w-full h-full opacity-[0.2]"
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }}
+                        <div className="w-full h-full opacity-[0.1]"
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }}
                         />
-                        {}
+                        { }
                         <div className="absolute top-4 left-6 right-6 flex justify-between items-start z-20">
                             <div className="flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
@@ -78,22 +147,22 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                 </>
             ) : (
                 <>
-                    {}
+                    { }
                     {image ? (
                         <div className="absolute inset-0 z-0">
                             <img src={image} className="w-full h-full object-cover" alt={label} />
                         </div>
                     ) : (
                         <>
-                            {}
+                            { }
                             <div className="absolute inset-0 opacity-[0.25]"
                                 style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '32px 32px' }}
                             />
 
-                            {}
+                            { }
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.05] to-transparent h-[10%] w-full animate-scan pointer-events-none" style={{ animationDuration: '24s' }} />
 
-                            {}
+                            { }
                             <div className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center opacity-20 pointer-events-none bg-white/[0.05] rounded-full">
                                 <div className="w-[1px] h-4 bg-white/40" />
                                 <div className="absolute h-[1px] w-4 bg-white/40" />
@@ -101,14 +170,14 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                         </>
                     )}
 
-                    {}
+                    { }
                     <div className="absolute top-4 left-6 right-6 flex justify-between items-start z-20">
                         <div className="flex items-center gap-2">
                             <div className={`w-1.5 h-1.5 rounded-full ${alert ? 'bg-red-500 animate-pulse' : 'bg-[#00FF41] shadow-[0_0_8px_#00FF41]'}`} />
                             <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-white/90 uppercase">{label || 'SOURCE-01'}</span>
                         </div>
 
-                        {}
+                        { }
                         <div className="flex items-end gap-[3px] h-3 pb-0.5">
                             {[1, 2, 3, 4].map((i) => (
                                 <motion.div
@@ -124,7 +193,7 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                         </div>
                     </div>
 
-                    {}
+                    { }
                     <div className="absolute bottom-4 left-6 right-6 flex justify-end items-end z-20 transition-opacity duration-300 group-hover:opacity-0">
                         <div className="flex items-center gap-1.5 px-2 py-1 bg-white/[0.03] border border-white/10 rounded-[2px]">
                             <Cctv size={10} className="text-white/40" />
@@ -136,20 +205,25 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                 </>
             )}
 
-            {}
+            { }
             <div className={`absolute top-3 left-3 w-4 h-4 border-t border-l ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
             <div className={`absolute top-3 right-3 w-4 h-4 border-t border-r ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
             <div className={`absolute bottom-3 left-3 w-4 h-4 border-b border-l ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
             <div className={`absolute bottom-3 right-3 w-4 h-4 border-b border-r ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
         </div>
     );
-};
+});
 
 const Dashboard = ({ onLogout, onRefresh }) => {
-    const [time, setTime] = useState('')
+    const [userProfile, setUserProfile] = useState({
+        name: 'AYOBAMI ZENTHOS',
+        email: 'ayobamizenthos@gmail.com',
+        phone: '+234 811 538 3780',
+        image: zenthosImg,
+        securityKey: '............'
+    })
     const [sidebarHover, setSidebarHover] = useState(false)
     const [sidebarInitOpen, setSidebarInitOpen] = useState(true)
-
     const [currentLocation, setCurrentLocation] = useState('All')
     const [isLocationOpen, setIsLocationOpen] = useState(false)
     const [currentCamera, setCurrentCamera] = useState('All cameras')
@@ -163,13 +237,8 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     const [setupStep, setSetupStep] = useState(1)
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [isProfileOpen, setIsProfileOpen] = useState(false)
-    const [userProfile, setUserProfile] = useState({
-        name: 'AYOBAMI ZENTHOS',
-        email: 'ayobamizenthos@gmail.com',
-        phone: '+234 811 538 3780',
-        image: zenthosImg,
-        securityKey: '............'
-    })
+    const [isPrimusConnectOpen, setIsPrimusConnectOpen] = useState(false)
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
     const [deviceType, setDeviceType] = useState('Select Hardware...')
     const [isDeviceTypeOpen, setIsDeviceTypeOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -177,6 +246,28 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     const [isVibrating, setIsVibrating] = useState(false)
     const [activeNotificationTab, setActiveNotificationTab] = useState('ADMIN')
     const [selectedMessageId, setSelectedMessageId] = useState(null)
+
+    const allSearchItems = React.useMemo(() => [
+        { category: 'Pages', label: 'Security Cameras', keywords: 'cameras surveillance cctv live feed', icon: Cctv, action: () => { setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Primus', keywords: 'primus connection hub network', icon: Radio, action: () => { setActiveTab('Primus'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Recorded Footage', keywords: 'recorded footage playback video history', icon: Video, action: () => { setActiveTab('Recorded Footage'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Security Alerts', keywords: 'security alerts warnings notifications', icon: Shield, action: () => { setActiveTab('Security Alerts'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Alert Log', keywords: 'alert log history events timeline', icon: FileText, action: () => { setActiveTab('Alert Log'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Manage Access', keywords: 'access control permissions keys', icon: Key, action: () => { setActiveTab('Manage Access'); setSearchQuery('') } },
+        { category: 'Pages', label: 'User & Roles', keywords: 'users roles teams members admin', icon: Users, action: () => { setActiveTab('User & Roles'); setSearchQuery('') } },
+        { category: 'Pages', label: 'System Settings', keywords: 'system settings configuration preferences', icon: Settings, action: () => { setActiveTab('System Settings'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Device Management', keywords: 'device management hardware sensors', icon: Settings, action: () => { setActiveTab('Device Management'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Basement Camera', keywords: 'basement cam feed', icon: Video, action: () => { setActiveGridCamera('Basement'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Entrance Camera', keywords: 'entrance front cam feed', icon: Video, action: () => { setActiveGridCamera('Entrance'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Exit Camera', keywords: 'exit back cam feed', icon: Video, action: () => { setActiveGridCamera('Exit'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Garage Camera', keywords: 'garage parking cam feed', icon: Video, action: () => { setActiveGridCamera('Garage'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Staircase Camera', keywords: 'staircase stairs cam feed', icon: Video, action: () => { setActiveGridCamera('Staircase'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Profile', label: userProfile.name, keywords: 'profile account user me my avatar photo picture settings logout', icon: Users, isProfile: true, action: () => { setIsProfileOpen(true); setSearchQuery('') } },
+        { category: 'Actions', label: 'Notifications', keywords: 'notifications alerts messages inbox bell', icon: Bell, action: () => { setIsNotificationsOpen(true); setSearchQuery('') } },
+        { category: 'Actions', label: 'Connect to Primus', keywords: 'connect primus network pair hub', icon: Radio, action: () => { setIsPrimusConnectOpen(true); setSearchQuery('') } },
+        { category: 'Actions', label: 'Add Camera', keywords: 'add camera new setup device', icon: Plus, action: () => { setIsSetupOpen(true); setSearchQuery('') } },
+        { category: 'Actions', label: 'Log Out', keywords: 'logout sign out exit session end', icon: LogOut, action: () => { setIsLogoutModalOpen(true); setSearchQuery('') } },
+    ], [userProfile.name]);
 
     const nameInputRef = useRef(null)
     const emailInputRef = useRef(null)
@@ -280,26 +371,26 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         return () => clearTimeout(timer)
     }, [activeEditField])
 
-    const [isPrimusConnectOpen, setIsPrimusConnectOpen] = useState(false)
     const [primusConnectStep, setPrimusConnectStep] = useState(1)
     const [primusForm, setPrimusForm] = useState({ site: '', label: '', location: '', description: '' })
-    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
     const [systemStats, setSystemStats] = useState({ net: 0, uptime: 0 })
     const isBootingRef = useRef(true)
     const lastReceivedStatsRef = useRef({ net: 100, uptime: 0 })
 
     useEffect(() => {
+
         const timer = setTimeout(() => {
             isBootingRef.current = false
             setSystemStats(lastReceivedStatsRef.current)
         }, 2000)
         return () => clearTimeout(timer)
     }, [])
-    const [globalSignalBars, setGlobalSignalBars] = useState(4)
+
     const [gridNetStatus, setGridNetStatus] = useState([0, 0, 0, 0])
 
     useEffect(() => {
         if (systemStats.net > 0 && !isReloading) {
+
             const t1 = setTimeout(() => setGridNetStatus(prev => [100, prev[1], prev[2], prev[3]]), 100)
             const t2 = setTimeout(() => setGridNetStatus(prev => [100, 100, prev[2], prev[3]]), 600)
             const t3 = setTimeout(() => setGridNetStatus(prev => [100, 100, 100, prev[3]]), 1100)
@@ -334,11 +425,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     useEffect(() => {
         const timer = setTimeout(() => setSidebarInitOpen(false), 5000)
-        const signalTimer = setInterval(() => setGlobalSignalBars(Math.random() > 0.65 ? 4 : 3), 1500)
-        return () => {
-            clearTimeout(timer)
-            clearInterval(signalTimer)
-        }
+        return () => clearTimeout(timer)
     }, [])
 
     const sidebarOpen = sidebarHover || sidebarInitOpen
@@ -377,9 +464,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     const handleSoftReload = React.useCallback(() => {
         setIsReloading(true)
+
         setSystemStats(prev => ({ ...prev, net: 0 }))
         prevNetRef.current = 0
         setShowPrimusToast(false)
+
         setTimeout(() => {
             if (onRefresh) onRefresh()
             setIsReloading(false)
@@ -419,6 +508,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     }, [handleSoftReload])
 
     useEffect(() => {
+
         if (prevNetRef.current !== undefined && prevNetRef.current !== systemStats.net) {
 
             if (window.electron && window.electron.windowShake) {
@@ -458,26 +548,32 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
+
             if (e.ctrlKey && e.key.toLowerCase() === 'l') {
                 e.preventDefault();
                 onLogout();
             }
+
             if (e.ctrlKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault();
                 window.api?.setNetworkState?.(false);
             }
+
             if (e.ctrlKey && e.key.toLowerCase() === 'c') {
                 e.preventDefault();
                 window.api?.setNetworkState?.(true);
             }
+
             if (e.ctrlKey && e.key.toLowerCase() === 'p') {
                 e.preventDefault();
                 setIsProfileOpen(true);
             }
+
             if (e.ctrlKey && e.key.toLowerCase() === 'n') {
                 e.preventDefault();
                 setIsNotificationsOpen(true);
             }
+
             if (e.ctrlKey && e.key.toLowerCase() === 'r') {
                 e.preventDefault();
                 handleSoftReload();
@@ -567,39 +663,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     }, [])
 
     useEffect(() => {
-        const update = () => {
-            const d = new Date()
-            const date = d.toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }).replace(/-/g, '.')
-            const time = d.toLocaleTimeString('en-GB', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false,
-                timeZone: 'Africa/Lagos'
-            })
-            setTime(`${date} ${time}`)
-        }
-        const t = setInterval(update, 1000)
-        update()
-        return () => clearInterval(t)
-    }, [])
-
-    useEffect(() => {
-        const logPool = [
-            { title: 'Unknown face detected', type: 'alert' },
-            { title: 'Signal lost', type: 'alert' },
-            { title: 'Signal restored', type: 'system' },
-            { title: 'Motion detected', type: 'alert' },
-            { title: 'Door locked', type: 'system' },
-            { title: 'Scan approved', type: 'system' },
-            { title: 'Link success', type: 'system' },
-            { title: 'Sync complete', type: 'system' },
-            { title: 'Access denied', type: 'alert' },
-            { title: 'Key updated', type: 'system' },
-            { title: 'Scan active', type: 'system' },
-            { title: 'System ready', type: 'system' },
-        ]
-
         let timeoutId
 
         const addLog = () => {
@@ -624,43 +687,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     const locations = ["All", "Entrance", "Exit", "Garage", "Basement"]
     const cameras = ["All cameras", "7368770-b53e-4b3b-9096-c81cbd852edb"]
 
-    const navGroups = [
-        {
-            header: "Surveillance",
-            items: [
-                { icon: Cctv, label: "Security Cameras" },
-                { icon: Radio, label: "Primus" },
-                { icon: RfIcon, label: "Recorded Footage" }
-            ]
-        },
-        {
-            header: "Alerts & Log",
-            items: [
-                { icon: SaIcon, label: "Security Alerts" },
-                { icon: FileText, label: "Alert Log" }
-            ]
-        },
-        {
-            header: "Access Control",
-            items: [
-                { icon: Key, label: "Manage Access" }
-            ]
-        },
-        {
-            header: "Teams",
-            items: [
-                { icon: Users, label: "User & Roles" }
-            ]
-        },
-        {
-            header: "Settings",
-            items: [
-                { icon: Settings, label: "System Settings" },
-                { icon: DmIcon, label: "Device Management" }
-            ]
-        }
-    ]
-
     const activeItem = navGroups.flatMap(group => group.items).find(item => item.label === activeTab)
     const ActiveIcon = activeItem?.icon
 
@@ -674,27 +700,36 @@ const Dashboard = ({ onLogout, onRefresh }) => {
             className="w-full h-full flex bg-void text-[#F2F2F7] font-sans overflow-hidden"
         >
 
-            {}
+            { }
             <motion.nav
                 onHoverStart={() => setSidebarHover(true)}
                 onHoverEnd={() => setSidebarHover(false)}
-                initial={{ width: 300 }}
-                animate={{ width: (sidebarHover || sidebarInitOpen) ? 300 : 82 }}
-                transition={{ type: "spring", stiffness: 120, damping: 24 }}
+                initial={{ x: -100, opacity: 0, width: 300 }}
+                animate={{ x: 0, opacity: 1, width: (sidebarHover || sidebarInitOpen) ? 300 : 82 }}
+                transition={{
+                    x: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                    opacity: { duration: 0.8 },
+                    width: { type: "spring", stiffness: 120, damping: 24 }
+                }}
                 className="h-full bg-[#111113] flex flex-col pb-6 shrink-0 z-40 relative shadow-[2px_0_20px_rgba(0,0,0,0.5)] rounded-r-2xl"
             >
-                {}
+                { }
                 <div className="absolute top-20 right-0 bottom-0 left-0 border-r border-t border-white/[0.18] rounded-tr-[40px] pointer-events-none" />
-                {}
+                { }
                 <div className="h-20 mb-36 flex items-center whitespace-nowrap transition-all duration-300 z-50 shrink-0 select-none overflow-visible w-full">
-                    {}
-                    <div className="w-[82px] shrink-0 flex items-center justify-center pointer-events-none">
+                    { }
+                    <div className="w-[82px] shrink-0 flex items-center justify-center pointer-events-none" style={{ perspective: '1000px' }}>
                         <motion.img
+                            layoutId="unified-logo"
                             src={teletraanLogo}
-                            initial={{ rotate: 0 }}
-                            animate={{ rotate: sidebarOpen ? 360 : 0 }}
-                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            initial={{ rotateY: 0 }}
+                            animate={{ rotateY: sidebarOpen ? 360 : 0 }}
+                            transition={{
+                                rotateY: { duration: 0.8, ease: "easeOut" },
+                                layout: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+                            }}
                             className="w-[60px] h-[60px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                            style={{ transformStyle: 'preserve-3d' }}
                             alt="Teletraan"
                         />
                     </div>
@@ -703,7 +738,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </span>
                 </div>
 
-                {}
+                { }
                 <div className={`flex-1 overflow-x-hidden overflow-y-auto flex flex-col gap-2 px-3 scrollbar-hide transition-all duration-300`}>
                     {navGroups.map((group, i) => (
                         <div key={i} className={`flex flex-col ${sidebarOpen ? 'gap-1' : 'gap-2'}`}>
@@ -716,7 +751,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </motion.div>
                             )}
 
-                            {}
+                            { }
                             {group.items.map((item, j) => {
                                 const isActive = activeTab === item.label
                                 return (
@@ -730,12 +765,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     : 'text-[#AAAAAA] hover:text-[#F2F2F7] border border-transparent hover:border-white/[0.18]'
                                                 }
                                     `}>
-                                            {}
+                                            { }
                                             {isActive && (
                                                 <div className="absolute left-0 top-[20%] bottom-[20%] w-[2px] bg-white/60 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                                             )}
 
-                                            {}
+                                            { }
                                             {isActive && (
                                                 <div className="absolute inset-0 bg-gradient-to-r from-white/[0.05] via-white/[0.02] to-transparent pointer-events-none" />
                                             )}
@@ -759,7 +794,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     ))}
                 </div>
 
-                {}
+                { }
                 <div className="px-3 shrink-0">
                     <div
                         className={`
@@ -772,7 +807,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         `}
                         onClick={() => { setActiveTab('Primus'); }}
                     >
-                        {}
+                        { }
                         <div ref={primusDotRef} className="relative flex items-center justify-center w-[24px] h-[24px] shrink-0">
                             <div className={`w-3 h-3 rounded-full transition-all duration-700 ${systemStats.net > 0
                                 ? 'bg-[#00FF41] shadow-[0_0_12px_rgba(0,255,65,0.6)]'
@@ -785,7 +820,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             )}
                         </div>
 
-                        {}
+                        { }
                         <motion.span
                             animate={{ opacity: sidebarOpen ? 1 : 0, x: sidebarOpen ? 0 : -10 }}
                             className={`text-[11px] font-bold font-mono tracking-[0.15em] uppercase whitespace-nowrap leading-none transition-colors ${systemStats.net > 0 ? 'text-white/70' : 'text-white/30'}`}
@@ -795,7 +830,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </div>
                 </div>
 
-                {}
+                { }
                 <AnimatePresence>
                     {showPrimusToast && systemStats.net > 0 && !sidebarOpen && (
                         <motion.div
@@ -813,7 +848,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
                 <div className="px-3 mt-4 mb-2 whitespace-nowrap overflow-hidden">
                     <div
                         onClick={() => setIsLogoutModalOpen(true)}
@@ -828,7 +863,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             Log Out
                         </motion.span>
 
-                        {}
+                        { }
                         {!sidebarOpen && (
                             <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">
                                 <div className="px-3 py-1.5 bg-[#1A1A1A] border border-white/10 rounded-[4px] shadow-lg">
@@ -840,12 +875,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                 </div>
             </motion.nav>
 
-            {}
+            { }
             <div className="flex-1 flex flex-col relative h-full bg-void">
-                {}
+                { }
                 <header className="h-24 w-full border-b border-white/[0.18] bg-[#111113]/80 backdrop-blur-md shrink-0 z-20 electron-draggable relative">
 
-                    {}
+                    { }
                     <div className="absolute inset-0 px-6 grid grid-cols-[1fr_260px] gap-6 pointer-events-none">
                         <div className="flex items-center justify-center">
                             <div className={`flex items-center gap-4 select-none transition-all duration-500 ${sidebarOpen ? 'blur-[6px] opacity-40' : 'blur-0 opacity-100'}`}>
@@ -864,16 +899,16 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </div>
                     </div>
 
-                    {}
+                    { }
                     <div className="absolute right-6 top-0 bottom-0 flex items-center gap-6 no-drag">
-                        {}
+                        { }
 
-                        {}
+                        { }
 
-                        {}
+                        { }
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
-                        {}
+                        { }
                         <div
                             className="h-full px-4 flex items-center gap-2 border-r border-white/[0.15] cursor-pointer group hover:bg-white/[0.03] transition-colors"
                             onClick={() => setIsNotificationsOpen(true)}
@@ -889,10 +924,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             </span>
                         </div>
 
-                        {}
+                        { }
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
-                        {}
+                        { }
                         <div
                             className="flex items-center gap-3 cursor-pointer group"
                             onClick={() => setIsProfileOpen(true)}
@@ -909,10 +944,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             </span>
                         </div>
 
-                        {}
+                        { }
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
-                        {}
+                        { }
                         <div className="flex items-center gap-2 px-1.5 h-10 bg-white/[0.03] border border-white/[0.15] rounded-[4px] backdrop-blur-xl shadow-2xl mr-2">
                             <div
                                 onClick={() => window.api?.toggleNetwork?.()}
@@ -933,10 +968,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
                             </div>
 
-                            {}
+                            { }
                             <div className="w-[1px] h-4 bg-white/20" />
 
-                            {}
                             <div
                                 className="flex items-center gap-1.5 px-2.5 h-8 rounded-[2px] transition-all duration-300 group/time cursor-default"
                             >
@@ -945,18 +979,16 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     className="text-white/60 group-hover/time:text-white/80 transition-colors duration-300"
                                     strokeWidth={2}
                                 />
-                                <span className="text-[11px] font-bold text-white/60 group-hover/time:text-white/90 font-mono tracking-tight tabular-nums transition-colors">
-                                    {time.split(' ')[1]}
-                                </span>
+                                <DigitalClock />
                             </div>
                         </div>
 
-                        {}
+                        { }
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
                         <WindowControls onReload={handleSoftReload} />
 
-                        {}
+                        { }
                         <AnimatePresence>
                             {netHover && (
                                 <motion.div
@@ -981,9 +1013,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </div>
                 </header>
 
-                {}
+                { }
                 <div className={`h-16 w-full flex items-center justify-between px-6 shrink-0 ${searchQuery ? 'z-[100]' : 'z-10'} relative`}>
-                    {}
+                    { }
                     <div className="relative w-72 h-9 group" style={{ zIndex: searchQuery ? 9999 : 50 }}>
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/60 group-focus-within:text-[#F2F2F7] transition-all z-20 pointer-events-none">
                             <Search size={16} strokeWidth={2.5} />
@@ -996,40 +1028,15 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             className="w-full h-full pl-11 pr-4 bg-[#111113] border border-white/[0.18] rounded-[2px] text-[15px] text-[#F2F2F7] font-medium placeholder-white/30 focus:outline-none focus:border-white/40 focus:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all relative z-10"
                         />
 
-                        {}
+                        { }
                         <AnimatePresence>
                             {searchQuery && (() => {
-                                const allSearchItems = [
-                                    { category: 'Pages', label: 'Security Cameras', keywords: 'cameras surveillance cctv live feed', icon: Cctv, action: () => { setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Primus', keywords: 'primus connection hub network', icon: Radio, action: () => { setActiveTab('Primus'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Recorded Footage', keywords: 'recorded footage playback video history', icon: Video, action: () => { setActiveTab('Recorded Footage'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Security Alerts', keywords: 'security alerts warnings notifications', icon: Shield, action: () => { setActiveTab('Security Alerts'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Alert Log', keywords: 'alert log history events timeline', icon: FileText, action: () => { setActiveTab('Alert Log'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Manage Access', keywords: 'access control permissions keys', icon: Key, action: () => { setActiveTab('Manage Access'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'User & Roles', keywords: 'users roles teams members admin', icon: Users, action: () => { setActiveTab('User & Roles'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'System Settings', keywords: 'system settings configuration preferences', icon: Settings, action: () => { setActiveTab('System Settings'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Device Management', keywords: 'device management hardware sensors', icon: Settings, action: () => { setActiveTab('Device Management'); setSearchQuery('') } },
-
-                                    { category: 'Cameras', label: 'Basement Camera', keywords: 'basement cam feed', icon: Video, action: () => { setActiveGridCamera('Basement'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Entrance Camera', keywords: 'entrance front cam feed', icon: Video, action: () => { setActiveGridCamera('Entrance'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Exit Camera', keywords: 'exit back cam feed', icon: Video, action: () => { setActiveGridCamera('Exit'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Garage Camera', keywords: 'garage parking cam feed', icon: Video, action: () => { setActiveGridCamera('Garage'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Staircase Camera', keywords: 'staircase stairs cam feed', icon: Video, action: () => { setActiveGridCamera('Staircase'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-
-                                    { category: 'Profile', label: userProfile.name, keywords: 'profile account user me my avatar photo picture settings logout', icon: Users, isProfile: true, action: () => { setIsProfileOpen(true); setSearchQuery('') } },
-
-                                    { category: 'Actions', label: 'Notifications', keywords: 'notifications alerts messages inbox bell', icon: Bell, action: () => { setIsNotificationsOpen(true); setSearchQuery('') } },
-                                    { category: 'Actions', label: 'Connect to Primus', keywords: 'connect primus network pair hub', icon: Radio, action: () => { setIsPrimusConnectOpen(true); setSearchQuery('') } },
-                                    { category: 'Actions', label: 'Add Camera', keywords: 'add camera new setup device', icon: Plus, action: () => { setIsSetupOpen(true); setSearchQuery('') } },
-                                    { category: 'Actions', label: 'Log Out', keywords: 'logout sign out exit session end', icon: LogOut, action: () => { setIsLogoutModalOpen(true); setSearchQuery('') } },
-                                ]
-
-                                const q = searchQuery.toLowerCase()
+                                const q = searchQuery.toLowerCase();
                                 const filtered = allSearchItems.filter(item =>
                                     item.label.toLowerCase().includes(q) ||
                                     item.keywords.toLowerCase().includes(q) ||
                                     item.category.toLowerCase().includes(q)
-                                )
+                                );
 
                                 const grouped = filtered.reduce((acc, item) => {
                                     if (!acc[item.category]) acc[item.category] = []
@@ -1066,6 +1073,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                         {items.map((item, i) => (
                                                             item.isProfile ? (
+
                                                                 <button
                                                                     key={`${category}-${i}`}
                                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); item.action(); }}
@@ -1085,6 +1093,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                                     <ArrowRight size={14} className="text-[#444] group-hover:text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all shrink-0 pointer-events-none" />
                                                                 </button>
                                                             ) : (
+
                                                                 <button
                                                                     key={`${category}-${i}`}
                                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); item.action(); }}
@@ -1110,7 +1119,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </AnimatePresence>
                     </div>
 
-                    {}
+                    { }
                     <div className="flex items-center gap-3">
                         <div className="relative" ref={cameraRef}>
                             <button
@@ -1144,14 +1153,14 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </div>
                 </div>
 
-                {}
+                { }
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3 }}
                     className={`flex-1 p-6 overflow-hidden flex flex-col items-center justify-center`}
                 >
-                    {}
+                    { }
                     <AnimatePresence>
                         {activeTab === 'Security Cameras' && (
                             <motion.div
@@ -1181,14 +1190,15 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </AnimatePresence>
                     {activeTab === 'Security Cameras' && (
                         <>
-                            {}
+                            { }
                             <div className="w-full bg-[#111113] rounded-[4px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.9)] relative h-[calc(100%-80px)]">
-                                {}
+                                { }
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/10 z-20 pointer-events-none" />
 
                                 {(currentCamera !== 'All cameras' || currentLocation !== 'All') ? (
+
                                     <div className="relative w-full h-full bg-void p-2">
-                                        {}
+                                        { }
                                         <div className="absolute inset-0 opacity-[0.08]"
                                             style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
                                         />
@@ -1222,13 +1232,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     </div>
                                 ) : (
                                     <div className="relative w-full h-full bg-void p-2">
-                                        {}
+                                        { }
                                         <div className="absolute inset-0 opacity-[0.08]"
                                             style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
                                         />
 
                                         <div className="grid grid-cols-2 grid-rows-2 w-full h-full gap-2 relative z-10">
-                                            {}
+                                            { }
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1246,7 +1256,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </motion.div>
 
-                                            {}
+                                            { }
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1264,7 +1274,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </motion.div>
 
-                                            {}
+                                            { }
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1282,7 +1292,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </motion.div>
 
-                                            {}
+                                            { }
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1306,7 +1316,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </motion.div>
                                         </div>
 
-                                        {}
+                                        { }
                                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 z-20 pointer-events-none flex items-center justify-center opacity-10">
                                             <div className="w-[2px] h-full bg-white/40" />
                                             <div className="absolute h-[2px] w-full bg-white/40" />
@@ -1317,7 +1327,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </>
                     )}
 
-                    {}
+                    { }
                     {activeTab === 'Primus' && (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -1340,27 +1350,27 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     }
                                 }}
                                 disabled={systemStats.net === 0}
-                                className={`relative group px-8 py-3 bg-transparent border overflow-hidden rounded-[2px] flex items-center gap-4 transition-all duration-500
+                                className={`relative group px-8 py-3 bg-transparent border overflow-hidden rounded-[2px] flex items-center gap-4 transition-all duration-500 
                                     ${systemStats.net > 0
                                         ? 'border-white cursor-pointer'
                                         : 'border-white/10 cursor-not-allowed'}`}
                             >
-                                {}
+                                { }
                                 {systemStats.net > 0 && (
                                     <div className="absolute inset-0 bg-white z-0 w-full h-full transition-transform duration-500 ease-[0.22,1,0.36,1] group-hover:translate-x-full" />
                                 )}
 
-                                {}
+                                { }
                                 <div className="relative z-10 flex items-center gap-3">
-                                    <span className={`text-[14px] font-mono font-bold tracking-[0.2em] uppercase transition-colors duration-300
+                                    <span className={`text-[14px] font-mono font-bold tracking-[0.2em] uppercase transition-colors duration-300 
                                         ${systemStats.net > 0 ? 'text-black group-hover:text-white' : 'text-white/20'}`}>
                                         {systemStats.net > 0 ? 'Connect' : 'System Offline'}
                                     </span>
-                                    <ArrowRight size={18} className={`transition-all duration-300
+                                    <ArrowRight size={18} className={`transition-all duration-300 
                                         ${systemStats.net > 0 ? 'text-black group-hover:text-white group-hover:translate-x-1' : 'text-white/10'}`} />
                                 </div>
 
-                                {}
+                                { }
                                 {systemStats.net > 0 && (
                                     <>
                                         <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-transparent group-hover:border-white/50 transition-colors delay-100" />
@@ -1371,19 +1381,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </motion.div>
                     )}
 
-                    {}
+                    { }
                     {!['Security Cameras', 'Primus'].includes(activeTab) && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="flex flex-col items-center text-center max-w-2xl relative"
                         >
-                            {}
+                            { }
                             <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-[0.03]">
                                 <img src={teletraanLogo} className="w-[500px] grayscale invert animate-pulse duration-[5s]" alt="" />
                             </div>
 
-                            {}
+                            { }
                             <div className="w-16 h-1 bg-white/20 rounded-full mb-8 relative overflow-hidden">
                                 <motion.div
                                     animate={{ x: [-64, 64] }}
@@ -1406,7 +1416,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                                 </div>
 
-                                {}
+                                { }
                                 <div className="absolute -top-4 -left-4 w-8 h-8 border-t-2 border-l-2 border-white/20" />
                                 <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-white/20" />
                             </div>
@@ -1421,7 +1431,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </motion.div>
 
-                {}
+                { }
                 <AnimatePresence>
                     {isPrimusConnectOpen && (
                         <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 font-sans">
@@ -1437,7 +1447,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                                 className="w-full max-w-xl bg-[#0E0E10] border border-white/[0.15] shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-2xl relative overflow-hidden flex flex-col"
                             >
-                                {}
+                                { }
                                 <div className="h-16 border-b border-white/[0.18] flex items-center justify-between px-8">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2 h-2 bg-[#00FF41] rounded-full shadow-[0_0_10px_#00FF41]" />
@@ -1456,7 +1466,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
 
                                 <div className="p-8">
-                                    {}
+                                    { }
                                     {primusConnectStep === 1 && (
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.95 }}
@@ -1477,6 +1487,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             <button
                                                 onClick={() => {
                                                     setPrimusConnectStep(2)
+
                                                     setTimeout(() => {
                                                         setPrimusConnectStep(3)
                                                     }, 2500)
@@ -1493,7 +1504,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </motion.div>
                                     )}
 
-                                    {}
+                                    { }
                                     {primusConnectStep === 2 && (
                                         <motion.div
                                             initial={{ opacity: 0 }}
@@ -1511,7 +1522,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </motion.div>
                                     )}
 
-                                    {}
+                                    { }
                                     {primusConnectStep === 3 && (
                                         <motion.div
                                             initial={{ opacity: 0, x: 20 }}
@@ -1525,7 +1536,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
 
                                             <div className="flex flex-col gap-5">
-                                                {}
+                                                { }
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Site Reference</label>
                                                     <input
@@ -1537,7 +1548,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     />
                                                 </div>
 
-                                                {}
+                                                { }
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Device Label</label>
                                                     <input
@@ -1549,7 +1560,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     />
                                                 </div>
 
-                                                {}
+                                                { }
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Location</label>
                                                     <input
@@ -1561,7 +1572,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     />
                                                 </div>
 
-                                                {}
+                                                { }
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Description <span className="opacity-50 font-normal">(Optional)</span></label>
                                                     <input
@@ -1593,7 +1604,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </motion.div>
                                     )}
 
-                                    {}
+                                    { }
                                     {primusConnectStep === 4 && (
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.9 }}
@@ -1625,7 +1636,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </div>
                     )}
                 </AnimatePresence>
-                {}
+                { }
                 <AnimatePresence>
                     {isProfileOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
@@ -1642,10 +1653,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 onClick={() => setActiveEditField(null)}
                                 className="w-full max-w-4xl bg-[#111113]/80 backdrop-blur-3xl border border-white/[0.15] shadow-[0_0_100px_rgba(0,0,0,0.9)] rounded-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]"
                             >
-                                {}
+                                { }
                                 <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#F2F2F7] to-transparent opacity-70 shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
 
-                                {}
+                                { }
                                 <div className="px-10 py-8 flex items-center justify-between border-b border-white/[0.18] bg-white/[0.01]">
                                     <div className="flex items-center gap-4">
                                         <div className="w-1.5 h-6 bg-[#00FF41] rounded-full shadow-[0_0_15px_#00FF41]" />
@@ -1659,19 +1670,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     >
                                         <div className="relative p-2">
                                             <X size={20} className="group-hover:scale-110 transition-transform" />
-                                            {}
+                                            { }
                                             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                         </div>
                                     </button>
                                 </div>
 
-                                {}
+                                { }
                                 <div className="p-10 overflow-y-auto custom-scrollbar flex-1 flex flex-col gap-10">
 
-                                    {}
+                                    { }
                                     <div className="flex items-center gap-10">
-                                        {}
+                                        { }
                                         <div className="relative group cursor-pointer shrink-0">
                                             <div className="w-40 h-40 rounded-full border-[3px] border-white/10 p-1.5 group-hover:border-[#00FF41]/50 transition-all duration-500 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                                                 <div className="w-full h-full rounded-full bg-[#111] overflow-hidden relative">
@@ -1686,11 +1697,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {}
+                                            { }
                                             <div className="absolute bottom-3 right-3 w-6 h-6 bg-[#00FF41] rounded-full border-[4px] border-[#111113] shadow-[0_0_15px_#00FF41]" />
                                         </div>
 
-                                        {}
+                                        { }
                                         <div className="flex-1 space-y-2">
                                             <h3 className="text-4xl font-bold text-[#F2F2F7] tracking-[0.05em] uppercase">{userProfile.name}</h3>
                                             <div className="flex items-center gap-4">
@@ -1704,9 +1715,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </div>
                                     </div>
 
-                                    {}
+                                    { }
                                     <div className="grid grid-cols-2 gap-x-12 gap-y-8">
-                                        {}
+                                        { }
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Name</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1722,7 +1733,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#CCCCCC] hover:border-white/20'}
                                                     `}
                                                 />
-                                                {}
+                                                { }
                                                 <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-white/40" />
                                                 <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-white/40" />
                                                 <button
@@ -1739,7 +1750,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
                                         </div>
 
-                                        {}
+                                        { }
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Email</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1755,7 +1766,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#CCCCCC] hover:border-white/20'}
                                                     `}
                                                 />
-                                                {}
+                                                { }
                                                 <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-white/40" />
                                                 <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-white/40" />
                                                 <button
@@ -1772,7 +1783,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
                                         </div>
 
-                                        {}
+                                        { }
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Password</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1789,7 +1800,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#F2F2F7] group-hover:border-[#00FF41]/50'}
                                                     `}
                                                 />
-                                                {}
+                                                { }
                                                 <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-white/10 group-hover:border-[#00FF41]/30" />
                                                 <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-white/10 group-hover:border-[#00FF41]/30" />
                                                 <button
@@ -1808,7 +1819,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
                                         </div>
 
-                                        {}
+                                        { }
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Contact</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1825,7 +1836,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#CCCCCC] hover:border-white/20'}
                                                     `}
                                                 />
-                                                {}
+                                                { }
                                                 <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-white/40" />
                                                 <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-white/40" />
                                                 <button
@@ -1845,7 +1856,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
                                 </div>
 
-                                {}
+                                { }
                                 <div className="px-10 py-6 border-t border-white/[0.18] bg-transparent flex justify-end">
                                     <button
                                         onClick={() => {
@@ -1866,7 +1877,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
                 <AnimatePresence>
                     {isLocationOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-10">
@@ -1924,7 +1935,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 ${currentLocation === loc ? 'border-[#F2F2F7] shadow-[0_0_20px_rgba(255,255,255,0.05)]' : ''}
                                             `}
                                             >
-                                                {}
+                                                { }
                                                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
 
                                                 <div className={`relative z-10 p-4 border border-white/10 rounded-full transition-all duration-500 group-hover:scale-110 group-hover:border-[#F2F2F7]/30
@@ -1933,7 +1944,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     <Icon size={24} strokeWidth={1.5} />
                                                 </div>
 
-                                                {}
+                                                { }
                                                 <div className="absolute bottom-4 opacity-100 transition-all duration-300 transform translate-y-0">
                                                     <span className="text-[10px] font-bold tracking-[0.2em] text-[#F2F2F7] uppercase bg-[#111113]/90 px-3 py-1 border border-white/10 rounded-[2px] backdrop-blur-md">
                                                         {loc}
@@ -1949,7 +1960,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
                 <AnimatePresence>
                     {isCameraOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-10">
@@ -2006,11 +2017,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     <Video size={24} />
                                                 ) : (
                                                     <div className="relative w-6 h-6 flex items-center justify-center">
-                                                        {}
+                                                        { }
                                                         <div className="absolute inset-[-6px] border border-current rounded-full opacity-20 border-t-transparent border-l-transparent animate-[spin_4s_linear_infinite]" />
                                                         <div className="absolute inset-[-6px] border border-current rounded-full opacity-10 border-b-transparent border-r-transparent animate-[spin_4s_linear_infinite_reverse]" />
 
-                                                        {}
+                                                        { }
                                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full relative z-10">
                                                             <circle cx="12" cy="12" r="10" strokeOpacity="0.5" />
                                                             <circle cx="12" cy="12" r="4" />
@@ -2024,7 +2035,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             <path d="M17 17l-1.5-1.5" />
                                                         </svg>
 
-                                                        {}
+                                                        { }
                                                         <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-20 rounded-full blur-md transition-opacity duration-500" />
                                                         <div className="absolute w-1.5 h-1.5 bg-current rounded-full" />
                                                     </div>
@@ -2045,9 +2056,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
 
-                {}
+                { }
                 <AnimatePresence>
                     {isSetupOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-8">
@@ -2063,7 +2074,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                                 className="w-full max-w-5xl bg-[#111113]/80 backdrop-blur-3xl border border-white/[0.15] shadow-[0_0_100px_rgba(0,0,0,0.9)] rounded-3xl relative overflow-hidden flex flex-col max-h-[90vh]"
                             >
-                                {}
+                                { }
                                 <div className="px-12 py-8 border-b border-white/[0.15] flex justify-between items-center bg-white/[0.01]">
                                     <div>
                                         <h2 className="text-3xl font-bold text-[#F2F2F7] tracking-[0.1em] uppercase drop-shadow-lg">Device Integration</h2>
@@ -2079,7 +2090,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     >
                                         <div className="relative p-2">
                                             <X size={24} className="group-hover:scale-110 transition-transform" />
-                                            {}
+                                            { }
                                             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                         </div>
@@ -2087,10 +2098,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
 
                                 <div className="p-12 overflow-y-auto custom-scrollbar">
-                                    {}
+                                    { }
                                     {setupStep === 1 && (
                                         <div className="grid grid-cols-2 gap-8">
-                                            {}
+                                            { }
                                             <button
                                                 disabled
                                                 className="relative group w-full aspect-video bg-[#111113] border border-white/[0.04] flex flex-col items-center justify-center overflow-hidden opacity-50 cursor-not-allowed"
@@ -2105,7 +2116,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </button>
 
-                                            {}
+                                            { }
                                             <button
                                                 onClick={() => setSetupMethod('manual')}
                                                 className={`relative group w-full aspect-video bg-[#111113] border border-white/[0.15] hover:border-[#F2F2F7]/50 transition-all duration-300 flex flex-col items-center justify-center overflow-hidden cursor-pointer
@@ -2132,11 +2143,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </div>
                                     )}
 
-                                    {}
+                                    { }
                                     {setupStep === 2 && (
                                         <div className="flex flex-col gap-6 p-2">
 
-                                            {}
+                                            { }
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Device Type</label>
                                                 <div className="relative group z-50">
@@ -2152,11 +2163,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         <ChevronDown size={14} className={`text-[#666] transition-transform duration-300 ${isDeviceTypeOpen ? 'rotate-180 text-[#F2F2F7]' : ''}`} />
                                                     </button>
 
-                                                    {}
+                                                    { }
                                                     <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-[#F2F2F7] transition-colors pointer-events-none" />
                                                     <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-[#F2F2F7] transition-colors pointer-events-none" />
 
-                                                    {}
+                                                    { }
                                                     <AnimatePresence>
                                                         {isDeviceTypeOpen && (
                                                             <motion.div
@@ -2187,7 +2198,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">IP Address</label>
                                                 <div className="relative group">
@@ -2197,7 +2208,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Username <span className="text-[#333] ml-2">(OPTIONAL)</span></label>
                                                 <div className="relative group">
@@ -2207,7 +2218,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Device Name</label>
                                                 <div className="relative group">
@@ -2217,7 +2228,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div className="flex flex-col">
                                                     <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Port</label>
@@ -2237,7 +2248,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="flex justify-center mt-4">
                                                 <button
                                                     className="relative group w-full h-14 border border-white overflow-hidden rounded-[2px] cursor-pointer"
@@ -2257,7 +2268,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     )}
                                 </div>
 
-                                {}
+                                { }
                                 {setupStep === 1 && setupMethod === 'manual' && (
                                     <div className="p-8 border-t border-white/[0.18] flex justify-end bg-[#111113]/30">
                                         <button
@@ -2278,7 +2289,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
                 <AnimatePresence>
                     {isNotificationsOpen && (
                         <div className="fixed inset-0 z-[1500] flex items-center justify-center p-6">
@@ -2294,10 +2305,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 exit={{ opacity: 0, scale: 0.98, y: 20 }}
                                 className="w-full max-w-6xl h-[85vh] bg-[#111113] border border-white/20 shadow-[0_0_100px_rgba(0,0,0,0.9)] rounded-[4px] relative overflow-hidden flex flex-col"
                             >
-                                {}
+                                { }
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent shadow-[0_0_20px_white]" />
 
-                                {}
+                                { }
                                 <div className="h-24 border-b border-white/[0.15] flex items-center justify-between px-10 bg-white/[0.02]">
                                     <div className="flex items-center gap-6">
                                         <div className="flex flex-col">
@@ -2310,7 +2321,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     >
                                         <div className="relative p-2">
                                             <X size={24} className="group-hover:scale-110 transition-transform" />
-                                            {}
+                                            { }
                                             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                         </div>
@@ -2318,7 +2329,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
 
                                 <div className="flex-1 flex overflow-hidden">
-                                    {}
+                                    { }
                                     <div className="w-[300px] border-r border-white/[0.15] flex flex-col py-6 bg-[#111113]/50">
                                         {Object.keys(notificationGroups).map((tabKey) => {
                                             const isActive = activeNotificationTab === tabKey
@@ -2332,7 +2343,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         ${isActive ? 'bg-white/[0.05] border-y border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]' : 'hover:bg-white/[0.02] border-y border-transparent'}
                                                     `}
                                                 >
-                                                    {}
+                                                    { }
                                                     {isActive && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-white shadow-[0_0_10px_white]" />}
 
                                                     <div className="flex flex-col items-start overflow-hidden justify-center flex-1">
@@ -2345,9 +2356,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         })}
                                     </div>
 
-                                    {}
+                                    { }
                                     <div className="flex-1 flex flex-col bg-[#111113]/30 relative">
-                                        {}
+                                        { }
                                         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
                                         <div className="flex-1 p-10 overflow-y-auto custom-scrollbar relative z-10 flex flex-col gap-8">
@@ -2381,7 +2392,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             })}
                                         </div>
 
-                                        {}
+                                        { }
                                         <div className="h-16 border-t border-white/[0.15] bg-white/[0.02] flex items-center justify-center px-10">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
@@ -2395,7 +2406,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
                 <AnimatePresence>
                     {isCameraDetailOpen && (
                         <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 sm:p-10">
@@ -2412,15 +2423,15 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                                 className="w-full max-w-7xl h-[85vh] bg-[#111113] border border-[#F2F2F7]/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-2xl flex flex-col overflow-hidden relative z-10"
                             >
-                                {}
+                                { }
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#F2F2F7] to-transparent opacity-50 shadow-[0_0_15px_white]" />
 
-                                {}
+                                { }
                                 <div className="h-24 px-10 flex items-center justify-between border-b border-white/[0.15] bg-white/[0.02] shrink-0">
                                     <div className="flex items-center gap-6">
                                         <div className="flex items-center gap-3">
                                             <h2 className="text-[28px] font-bold text-[#F2F2F7] tracking-[0.15em] uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{activeGridCamera || 'Living Room'}</h2>
-                                            {}
+                                            { }
                                             {(() => {
                                                 const cam = cameraRegistry[activeGridCamera || 'Living Room']
                                                 const isOffline = cam?.offline || systemStats.net === 0
@@ -2468,7 +2479,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         >
                                             <div className="relative p-2">
                                                 <X size={24} className="group-hover:scale-110 transition-transform" />
-                                                {}
+                                                { }
                                                 <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             </div>
@@ -2476,19 +2487,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     </div>
                                 </div>
 
-                                {}
+                                { }
                                 <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#0E0E10]">
                                     <div className="p-10 flex flex-col gap-8">
 
-                                        {}
+                                        { }
                                         <div
                                             id="camera-full-view"
                                             className="relative w-full aspect-video bg-[#111113] rounded-[4px] border border-white/10 overflow-hidden group shadow-2xl"
                                         >
-                                            {}
+                                            { }
                                             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px] opacity-30 pointer-events-none" />
 
-                                            {}
+                                            { }
                                             {(() => {
                                                 const camImages = {
                                                     'Basement': basementImg,
@@ -2507,9 +2518,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 return null
                                             })()}
 
-                                            {}
+                                            { }
 
-                                            {}
+                                            { }
                                             <div className="absolute inset-0 z-10">
                                                 {(() => {
                                                     const cam = cameraRegistry[activeGridCamera || 'Living Room']
@@ -2525,7 +2536,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     } else {
                                                         return (
                                                             <>
-                                                                {}
+                                                                { }
                                                                 <div className="absolute top-6 left-6 flex items-center gap-3">
                                                                     <div className="flex items-center gap-2 px-2 py-0.5 bg-red-600 rounded-[1px] animate-pulse">
                                                                         <span className="text-[9px] font-mono font-black text-white uppercase tracking-tighter">LIVE</span>
@@ -2534,9 +2545,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                                     <span className="text-[11px] font-mono font-black text-white tracking-[0.2em] uppercase">{activeGridCamera || 'CAM_01'}</span>
                                                                 </div>
 
-                                                                {}
+                                                                { }
                                                                 <div className="absolute bottom-6 right-6 flex items-center justify-center">
-                                                                    {}
+                                                                    { }
                                                                     <div
                                                                         className="flex items-center justify-center w-11 h-11 bg-[#111113]/70 backdrop-blur-md rounded-lg border border-white/20 hover:border-white/50 hover:bg-[#111113]/90 cursor-pointer transition-all shadow-[0_4px_20px_rgba(0,0,0,0.6)] group/expand"
                                                                         onClick={(e) => {
@@ -2551,13 +2562,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                                     </div>
                                                                 </div>
 
-                                                                {}
+                                                                { }
                                                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 opacity-10">
                                                                     <div className="w-full h-[1px] bg-white absolute top-1/2" />
                                                                     <div className="h-full w-[1px] bg-white absolute left-1/2" />
                                                                 </div>
 
-                                                                {}
+                                                                { }
                                                                 {cam?.alert && <div className="absolute inset-0 border-[4px] border-red-500/80 bg-red-500/20 shadow-[inset_0_0_150px_rgba(239,68,68,0.5)] animate-pulse z-20 pointer-events-none" />}
                                                             </>
                                                         )
@@ -2565,14 +2576,14 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 })()}
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-[#F2F2F7]/30" />
                                             <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-[#F2F2F7]/30" />
                                             <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-[#F2F2F7]/30" />
                                             <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-[#F2F2F7]/30" />
                                         </div>
 
-                                        {}
+                                        { }
                                         <div className="mt-8 flex flex-col gap-8 pb-10">
                                             <div className="flex items-center justify-between border-b border-white/[0.15] pb-4 px-2">
                                                 <h3 className="text-[18px] font-bold text-[#F2F2F7] tracking-[0.1em] uppercase drop-shadow-md">
@@ -2580,11 +2591,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </h3>
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="flex flex-col gap-4">
                                                 <span className="text-[11px] font-bold text-[#666] tracking-[0.1em] uppercase pl-1">May 27, 2026</span>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {}
+                                                    { }
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2604,7 +2615,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                     </div>
 
-                                                    {}
+                                                    { }
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2626,11 +2637,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {}
+                                            { }
                                             <div className="flex flex-col gap-4">
                                                 <span className="text-[11px] font-bold text-[#666] tracking-[0.1em] uppercase pl-1">May 04, 2026</span>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {}
+                                                    { }
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2650,7 +2661,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                     </div>
 
-                                                    {}
+                                                    { }
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2670,7 +2681,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                     </div>
 
-                                                    {}
+                                                    { }
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2699,7 +2710,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
                 <AnimatePresence>
                     {isLogoutModalOpen && (
                         <div className="fixed inset-0 z-[1500] flex items-center justify-center p-6">
@@ -2717,7 +2728,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 transition={{ duration: 0.2, ease: 'easeOut' }}
                                 className="w-full max-w-[420px] bg-[#1A1A1A] border border-white/[0.15] rounded-xl shadow-[0_25px_80px_rgba(0,0,0,0.9)] relative z-10 overflow-hidden"
                             >
-                                {}
+                                { }
                                 <div className="px-8 pt-10 pb-6 text-center">
                                     <h3 className="text-[20px] font-semibold text-white mb-4">Are you sure you want to Log Out?</h3>
                                     <p className="text-[14px] text-[#999] leading-relaxed">
@@ -2728,7 +2739,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     </p>
                                 </div>
 
-                                {}
+                                { }
                                 <div className="px-8 pb-8 flex items-center justify-center gap-4">
                                     <button
                                         onClick={() => setIsLogoutModalOpen(false)}
@@ -2748,7 +2759,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {}
+                { }
                 <AnimatePresence>
                     {isReloading && (
                         <motion.div
@@ -2758,35 +2769,23 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             transition={{ duration: 0.8, ease: "easeInOut" }}
                             className="fixed inset-0 z-[2000] flex items-center justify-center bg-[#111113]/50 backdrop-blur-[40px]"
                         >
-                            <motion.div
-                                initial={{ scale: 0.8, opacity: 0, filter: 'blur(20px)' }}
-                                animate={{
-                                    scale: [0.85, 0.9, 0.85],
-                                    opacity: [0.05, 0.12, 0.05],
-                                    filter: ['blur(4px)', 'blur(8px)', 'blur(4px)']
-                                }}
-                                transition={{
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                                className="relative"
-                            >
-                                <img
+                            <motion.div className="relative z-10 flex items-center justify-center">
+                                <motion.img
+                                    layoutId="unified-logo"
                                     src={teletraanLogo}
-                                    className="w-[600px] h-[600px] grayscale brightness-200"
+                                    className="w-[240px] h-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(20px) grayscale(100%)' }}
+                                    animate={{ opacity: 0.4, scale: 0.95, filter: 'blur(6px) grayscale(100%)' }}
+                                    transition={{
+                                        duration: 1.5,
+                                        ease: "easeOut",
+                                        layout: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+                                    }}
                                     alt="Teletraan Spectral Logo"
-                                />
-
-                                {}
-                                <motion.div
-                                    animate={{ top: ["-10%", "110%"] }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                    className="absolute left-0 right-0 h-[2px] bg-white/20 blur-[1px] z-10"
                                 />
                             </motion.div>
 
-                            {}
+                            { }
                             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
                                 <span className="text-white text-[11px] font-mono font-black tracking-[0.5em] uppercase animate-pulse">
                                     SYSTEM LOADING... PLEASE WAIT
