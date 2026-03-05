@@ -43,9 +43,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v1.0.0 --title "v1.0.0" --notes "Initial Release" || true
-          gh release edit v1.0.0 --draft=false || true
-          gh release upload v1.0.0 dist_electron/*.dmg dist_electron/*mac.zip dist_electron/latest-mac.yml --clobber || true
+          gh release create v1.1.0 --title "v1.1.0" --notes "Initial Release" || true
+          gh release edit v1.1.0 --draft=false || true
+          gh release upload v1.1.0 dist_electron/*.dmg dist_electron/*mac.zip dist_electron/latest-mac.yml --clobber || true
 
       - name: Upload DMG as artifact (backup)
         uses: actions/upload-artifact@v4
