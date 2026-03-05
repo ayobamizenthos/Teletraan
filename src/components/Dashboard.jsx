@@ -18,7 +18,6 @@ import garageImg from '../assets/cameras/garage.png'
 import exitImg from '../assets/cameras/exit.png'
 import WindowControls from './WindowControls'
 
-// === GLOBAL TYPOGRAPHY ===
 const font = {
     header: "'Inter', system-ui, sans-serif",
     mono: "'JetBrains Mono', monospace",
@@ -28,38 +27,103 @@ const RfIcon = ({ size, className }) => <img src={rfIcon} className={className} 
 const SaIcon = ({ size, className }) => <img src={saIcon} className={className} style={{ width: size, height: size }} alt="SA" />
 const DmIcon = ({ size, className }) => <img src={dmIcon} className={className} style={{ width: size, height: size }} alt="DM" />
 
-/* ─────────────────────────────────────
-   FEED CELL
-   ───────────────────────────────────── */
-const FeedCell = ({ label, active = true, alert = false, offline = false, systemNet = 100, image = null }) => {
+const logPool = [
+    { title: 'New device pair', type: 'system' },
+    { title: 'Motion detected', type: 'alert' },
+    { title: 'Unknown face', type: 'alert' },
+    { title: 'Signal restored', type: 'system' },
+    { title: 'Signal lost', type: 'alert' },
+    { title: 'Door opened', type: 'system' },
+    { title: 'Terminal entry', type: 'system' },
+    { title: 'Key updated', type: 'system' },
+    { title: 'Scan active', type: 'system' },
+    { title: 'System ready', type: 'system' },
+];
+
+const navGroups = [
+    {
+        header: "Surveillance",
+        items: [
+            { icon: Cctv, label: "Security Cameras" },
+            { icon: Radio, label: "Primus" },
+            { icon: RfIcon, label: "Recorded Footage" }
+        ]
+    },
+    {
+        header: "Alerts & Log",
+        items: [
+            { icon: SaIcon, label: "Security Alerts" },
+            { icon: FileText, label: "Alert Log" }
+        ]
+    },
+    {
+        header: "Access Control",
+        items: [
+            { icon: Key, label: "Manage Access" }
+        ]
+    },
+    {
+        header: "Teams",
+        items: [
+            { icon: Users, label: "User & Roles" }
+        ]
+    },
+    {
+        header: "Settings",
+        items: [
+            { icon: Settings, label: "System Settings" },
+            { icon: DmIcon, label: "Device Management" }
+        ]
+    }
+];
+
+const DigitalClock = React.memo(() => {
+    const [time, setTime] = useState('');
+    useEffect(() => {
+        const update = () => {
+            const d = new Date();
+            const date = d.toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }).replace(/-/g, '.');
+            const timeStr = d.toLocaleTimeString('en-GB', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false, timeZone: 'Africa/Lagos'
+            });
+            setTime(`${date} ${timeStr}`);
+        };
+        const t = setInterval(update, 1000);
+        update();
+        return () => clearInterval(t);
+    }, []);
+    return <span className="text-[11px] font-bold text-white/60 group-hover/time:text-white/90 font-mono tracking-tight tabular-nums transition-colors">{time.split(' ')[1]}</span>;
+});
+
+const FeedCell = React.memo(({ label, active = true, alert = false, offline = false, systemNet = 100, image = null }) => {
     const camId = useRef(`OX-${Math.random().toString(36).substr(2, 4).toUpperCase()}-${Math.random().toString(10).substr(2, 2)}`);
 
-    // Dynamic Active Signal Simulation (Healthy 3-4 Bars)
     const [signal, setSignal] = useState(4);
     const isActuallyOffline = offline || systemNet === 0;
 
     useEffect(() => {
         if (isActuallyOffline) return;
         const interval = setInterval(() => {
-            setSignal(Math.random() > 0.65 ? 4 : 3);
-        }, 1200 + Math.random() * 2000); // Fast, dynamic connection jitter
+            setSignal(s => Math.random() > 0.65 ? 4 : 3);
+        }, 3000 + Math.random() * 2000);
         return () => clearInterval(interval);
     }, [isActuallyOffline]);
 
     return (
         <div className="relative w-full h-full bg-[#111113] overflow-hidden flex flex-col border border-white/[0.15] rounded-[4px] group transition-all duration-500 hover:border-white/20">
-            {/* VIGNETTE & GRAIN LAYER */}
-            <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.15]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
+            {}
+            <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.08]"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
             />
             {isActuallyOffline ? (
                 <>
-                    {/* OFFLINE STATE - CRT STATIC */}
+                    {}
                     <div className="absolute inset-0 bg-[#111113]">
-                        <div className="w-full h-full opacity-[0.2]"
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }}
+                        <div className="w-full h-full opacity-[0.1]"
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }}
                         />
-                        {/* TOP: Camera Name + Status */}
+                        {}
                         <div className="absolute top-4 left-6 right-6 flex justify-between items-start z-20">
                             <div className="flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
@@ -83,22 +147,22 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                 </>
             ) : (
                 <>
-                    {/* Camera Feed Image if provided */}
+                    {}
                     {image ? (
                         <div className="absolute inset-0 z-0">
                             <img src={image} className="w-full h-full object-cover" alt={label} />
                         </div>
                     ) : (
                         <>
-                            {/* ONLINE STATE - SCANNING & GRID */}
+                            {}
                             <div className="absolute inset-0 opacity-[0.25]"
                                 style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '32px 32px' }}
                             />
 
-                            {/* Animated Scanline - Ultra-Slow Cinematic Sweep */}
+                            {}
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.05] to-transparent h-[10%] w-full animate-scan pointer-events-none" style={{ animationDuration: '24s' }} />
 
-                            {/* Crosshair (Subtle) */}
+                            {}
                             <div className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center opacity-20 pointer-events-none bg-white/[0.05] rounded-full">
                                 <div className="w-[1px] h-4 bg-white/40" />
                                 <div className="absolute h-[1px] w-4 bg-white/40" />
@@ -106,14 +170,14 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                         </>
                     )}
 
-                    {/* TOP INFO BAR */}
+                    {}
                     <div className="absolute top-4 left-6 right-6 flex justify-between items-start z-20">
                         <div className="flex items-center gap-2">
                             <div className={`w-1.5 h-1.5 rounded-full ${alert ? 'bg-red-500 animate-pulse' : 'bg-[#00FF41] shadow-[0_0_8px_#00FF41]'}`} />
                             <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-white/90 uppercase">{label || 'SOURCE-01'}</span>
                         </div>
 
-                        {/* SIGNAL BARS - NOW REACTIVE TO SYSTEM NET */}
+                        {}
                         <div className="flex items-end gap-[3px] h-3 pb-0.5">
                             {[1, 2, 3, 4].map((i) => (
                                 <motion.div
@@ -129,7 +193,7 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                         </div>
                     </div>
 
-                    {/* BOTTOM STATUS */}
+                    {}
                     <div className="absolute bottom-4 left-6 right-6 flex justify-end items-end z-20 transition-opacity duration-300 group-hover:opacity-0">
                         <div className="flex items-center gap-1.5 px-2 py-1 bg-white/[0.03] border border-white/10 rounded-[2px]">
                             <Cctv size={10} className="text-white/40" />
@@ -141,34 +205,56 @@ const FeedCell = ({ label, active = true, alert = false, offline = false, system
                 </>
             )}
 
-            {/* Tactical Corner Brackets */}
+            {}
             <div className={`absolute top-3 left-3 w-4 h-4 border-t border-l ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
             <div className={`absolute top-3 right-3 w-4 h-4 border-t border-r ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
             <div className={`absolute bottom-3 left-3 w-4 h-4 border-b border-l ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
             <div className={`absolute bottom-3 right-3 w-4 h-4 border-b border-r ${isActuallyOffline ? 'border-white/10' : 'border-white/20'} z-20 transition-colors group-hover:border-white/50`} />
         </div>
     );
-};
+});
 
-/* ─────────────────────────────────────
-   DASHBOARD
-   ───────────────────────────────────── */
 const Dashboard = ({ onLogout, onRefresh }) => {
-    const [time, setTime] = useState('')
     const [sidebarHover, setSidebarHover] = useState(false)
     const [sidebarInitOpen, setSidebarInitOpen] = useState(true)
+
+    const allSearchItems = React.useMemo(() => [
+
+        { category: 'Pages', label: 'Security Cameras', keywords: 'cameras surveillance cctv live feed', icon: Cctv, action: () => { setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Primus', keywords: 'primus connection hub network', icon: Radio, action: () => { setActiveTab('Primus'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Recorded Footage', keywords: 'recorded footage playback video history', icon: Video, action: () => { setActiveTab('Recorded Footage'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Security Alerts', keywords: 'security alerts warnings notifications', icon: Shield, action: () => { setActiveTab('Security Alerts'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Alert Log', keywords: 'alert log history events timeline', icon: FileText, action: () => { setActiveTab('Alert Log'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Manage Access', keywords: 'access control permissions keys', icon: Key, action: () => { setActiveTab('Manage Access'); setSearchQuery('') } },
+        { category: 'Pages', label: 'User & Roles', keywords: 'users roles teams members admin', icon: Users, action: () => { setActiveTab('User & Roles'); setSearchQuery('') } },
+        { category: 'Pages', label: 'System Settings', keywords: 'system settings configuration preferences', icon: Settings, action: () => { setActiveTab('System Settings'); setSearchQuery('') } },
+        { category: 'Pages', label: 'Device Management', keywords: 'device management hardware sensors', icon: Settings, action: () => { setActiveTab('Device Management'); setSearchQuery('') } },
+
+        { category: 'Cameras', label: 'Basement Camera', keywords: 'basement cam feed', icon: Video, action: () => { setActiveGridCamera('Basement'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Entrance Camera', keywords: 'entrance front cam feed', icon: Video, action: () => { setActiveGridCamera('Entrance'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Exit Camera', keywords: 'exit back cam feed', icon: Video, action: () => { setActiveGridCamera('Exit'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Garage Camera', keywords: 'garage parking cam feed', icon: Video, action: () => { setActiveGridCamera('Garage'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+        { category: 'Cameras', label: 'Staircase Camera', keywords: 'staircase stairs cam feed', icon: Video, action: () => { setActiveGridCamera('Staircase'); setActiveTab('Security Cameras'); setSearchQuery('') } },
+
+        { category: 'Profile', label: userProfile.name, keywords: 'profile account user me my avatar photo picture settings logout', icon: Users, isProfile: true, action: () => { setIsProfileOpen(true); setSearchQuery('') } },
+
+        { category: 'Actions', label: 'Notifications', keywords: 'notifications alerts messages inbox bell', icon: Bell, action: () => { setIsNotificationsOpen(true); setSearchQuery('') } },
+        { category: 'Actions', label: 'Connect to Primus', keywords: 'connect primus network pair hub', icon: Radio, action: () => { setIsPrimusConnectOpen(true); setSearchQuery('') } },
+        { category: 'Actions', label: 'Add Camera', keywords: 'add camera new setup device', icon: Plus, action: () => { setIsSetupOpen(true); setSearchQuery('') } },
+        { category: 'Actions', label: 'Log Out', keywords: 'logout sign out exit session end', icon: LogOut, action: () => { setIsLogoutModalOpen(true); setSearchQuery('') } },
+    ], [userProfile.name]);
 
     const [currentLocation, setCurrentLocation] = useState('All')
     const [isLocationOpen, setIsLocationOpen] = useState(false)
     const [currentCamera, setCurrentCamera] = useState('All cameras')
     const [isCameraOpen, setIsCameraOpen] = useState(false)
-    const [isCameraDetailOpen, setIsCameraDetailOpen] = useState(false) // New Detail Modal State
-    const [isReloading, setIsReloading] = useState(false) // System Resync State
+    const [isCameraDetailOpen, setIsCameraDetailOpen] = useState(false)
+    const [isReloading, setIsReloading] = useState(false)
     const [activeGridCamera, setActiveGridCamera] = useState('Basement')
     const [activeTab, setActiveTab] = useState("Security Cameras")
     const [isSetupOpen, setIsSetupOpen] = useState(false)
-    const [setupMethod, setSetupMethod] = useState(null) // 'smart' | 'manual' | null
-    const [setupStep, setSetupStep] = useState(1) // 1: Method, 2: Manual Form
+    const [setupMethod, setSetupMethod] = useState(null)
+    const [setupStep, setSetupStep] = useState(1)
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [userProfile, setUserProfile] = useState({
@@ -180,7 +266,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     })
     const [deviceType, setDeviceType] = useState('Select Hardware...')
     const [isDeviceTypeOpen, setIsDeviceTypeOpen] = useState(false)
-    const [searchQuery, setSearchQuery] = useState('') // Global Search State
+    const [searchQuery, setSearchQuery] = useState('')
     const [activeEditField, setActiveEditField] = useState(null)
     const [isVibrating, setIsVibrating] = useState(false)
     const [activeNotificationTab, setActiveNotificationTab] = useState('ADMIN')
@@ -192,7 +278,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     const phoneInputRef = useRef(null)
     const audioCtxRef = useRef(null)
 
-    // Unlock Audio Context on First User Gesture
     useEffect(() => {
         const unlockAudio = () => {
             if (!audioCtxRef.current) {
@@ -206,7 +291,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         return () => window.removeEventListener('click', unlockAudio);
     }, []);
 
-    // Synthetic Audio Haptic (Tactical Double-Pulse - Disconnect)
     const playHapticThud = () => {
         try {
             if (!audioCtxRef.current) {
@@ -230,16 +314,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                 osc.stop(time + dur);
             };
 
-            // Double Pulse "Tick-Thud"
             const now = ctx.currentTime;
 
-            // 1. Initial Sharp "Tick" (High Frequency)
             playPulse(now, 800, 0.04, 0.1, 'triangle');
 
-            // 2. Main Resonant "Thud" (Low Frequency, slightly delayed)
             playPulse(now + 0.05, 120, 0.15, 0.4, 'sine');
 
-            // 3. Sub-bass "Tail"
             playPulse(now + 0.05, 60, 0.2, 0.2, 'sine');
 
         } catch (e) {
@@ -247,7 +327,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         }
     }
 
-    // Synthetic Audio Haptic (Uplifting Chirp - Connect)
     const playConnectSound = () => {
         try {
             if (!audioCtxRef.current) {
@@ -276,14 +355,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         } catch (e) { console.warn('Connect sound failed', e); }
     }
     const [isFullscreen, setIsFullscreen] = useState(false)
-    const [playbackProgress, setPlaybackProgress] = useState(40) // Default 40% playback position
+    const [playbackProgress, setPlaybackProgress] = useState(40)
     const [cameraRegistry, setCameraRegistry] = useState({
         'Basement': { label: 'BASEMENT', offline: false },
         'Entrance': { label: 'ENTRANCE', alert: true },
         'Exit': { label: 'EXIT', offline: false },
         'Garage': { label: 'GARAGE', offline: false }
     })
-
 
     useEffect(() => {
         if (!activeEditField) return;
@@ -305,19 +383,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
     const lastReceivedStatsRef = useRef({ net: 100, uptime: 0 })
 
     useEffect(() => {
-        // Deliberate 2-second cold boot sequence
+
         const timer = setTimeout(() => {
             isBootingRef.current = false
             setSystemStats(lastReceivedStatsRef.current)
         }, 2000)
         return () => clearTimeout(timer)
     }, [])
-    const [globalSignalBars, setGlobalSignalBars] = useState(4)
+
     const [gridNetStatus, setGridNetStatus] = useState([0, 0, 0, 0])
 
     useEffect(() => {
         if (systemStats.net > 0 && !isReloading) {
-            // Elegant sequential grid activation sequence
+
             const t1 = setTimeout(() => setGridNetStatus(prev => [100, prev[1], prev[2], prev[3]]), 100)
             const t2 = setTimeout(() => setGridNetStatus(prev => [100, 100, prev[2], prev[3]]), 600)
             const t3 = setTimeout(() => setGridNetStatus(prev => [100, 100, 100, prev[3]]), 1100)
@@ -350,20 +428,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         setMousePos({ x: e.clientX, y: e.clientY });
     };
 
-    // Auto-close sidebar and animate global signals
     useEffect(() => {
         const timer = setTimeout(() => setSidebarInitOpen(false), 5000)
-        const signalTimer = setInterval(() => setGlobalSignalBars(Math.random() > 0.65 ? 4 : 3), 1500)
-        return () => {
-            clearTimeout(timer)
-            clearInterval(signalTimer)
-        }
+        return () => clearTimeout(timer)
     }, [])
 
-    // Derived: sidebar is visually open if hovered OR in initial open period
     const sidebarOpen = sidebarHover || sidebarInitOpen
-
-
 
     const [notificationGroups, setNotificationGroups] = useState({
         'ADMIN': [
@@ -399,18 +469,17 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     const handleSoftReload = React.useCallback(() => {
         setIsReloading(true)
-        // Reset Primus state so it replays the offline?online transition
+
         setSystemStats(prev => ({ ...prev, net: 0 }))
         prevNetRef.current = 0
         setShowPrimusToast(false)
-        // Set to exactly 3 seconds for perfect tactical pacing
+
         setTimeout(() => {
             if (onRefresh) onRefresh()
             setIsReloading(false)
         }, 3000)
     }, [onRefresh])
 
-    // Click Outside Handler
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (locationRef.current && !locationRef.current.contains(event.target)) {
@@ -427,7 +496,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         }
     }, [])
 
-    // System Stats Listener
     useEffect(() => {
         if (window.api && window.api.onSystemStats) {
             window.api.onSystemStats((stats) => {
@@ -444,33 +512,27 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         }
     }, [handleSoftReload])
 
-    // Detect network offline ? online transition for Primus toast
     useEffect(() => {
-        // Trigger vibration on connection change (Online OR Offline)
+
         if (prevNetRef.current !== undefined && prevNetRef.current !== systemStats.net) {
 
-            // 1. Physical Window Shake (Desktop Native Vibration)
             if (window.electron && window.electron.windowShake) {
                 window.electron.windowShake();
             }
 
-            // 2. Audio Haptic (Speaker Vibration Simulation)
             if (systemStats.net > 0) {
                 playConnectSound();
             } else {
                 playHapticThud();
             }
 
-            // 3. Physical vibration for supported hardware (Mobile/Tablet)
             if ('vibrate' in navigator) {
                 navigator.vibrate([100, 50, 100])
             }
 
-            // 4. Visual vibration (Screen Shake)
             setIsVibrating(true)
             const vibrateTimer = setTimeout(() => setIsVibrating(false), 300)
 
-            // Handle logical transitions
             if (prevNetRef.current === 0 && systemStats.net > 0) {
                 if (primusDotRef.current) {
                     const rect = primusDotRef.current.getBoundingClientRect()
@@ -485,46 +547,38 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         prevNetRef.current = systemStats.net
     }, [systemStats.net])
 
-    // Hide toast immediately when sidebar opens
     useEffect(() => {
         if (sidebarHover) setShowPrimusToast(false)
     }, [sidebarHover])
 
-
-
-
-
-
-
-    // CTRL Shortcut Handler
     useEffect(() => {
         const handleKeyDown = (e) => {
-            // CTRL+L to sign out automatically
+
             if (e.ctrlKey && e.key.toLowerCase() === 'l') {
                 e.preventDefault();
                 onLogout();
             }
-            // CTRL+D to disconnect
+
             if (e.ctrlKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault();
                 window.api?.setNetworkState?.(false);
             }
-            // CTRL+C to connect
+
             if (e.ctrlKey && e.key.toLowerCase() === 'c') {
                 e.preventDefault();
                 window.api?.setNetworkState?.(true);
             }
-            // CTRL+P to open profile
+
             if (e.ctrlKey && e.key.toLowerCase() === 'p') {
                 e.preventDefault();
                 setIsProfileOpen(true);
             }
-            // CTRL+N to open notifications
+
             if (e.ctrlKey && e.key.toLowerCase() === 'n') {
                 e.preventDefault();
                 setIsNotificationsOpen(true);
             }
-            // CTRL+R to reload
+
             if (e.ctrlKey && e.key.toLowerCase() === 'r') {
                 e.preventDefault();
                 handleSoftReload();
@@ -547,7 +601,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         }
     }
 
-    // Fullscreen change listener
     useEffect(() => {
         const handleFullscreenChange = () => {
             setIsFullscreen(!!document.fullscreenElement);
@@ -593,7 +646,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         }))
     }
 
-    // Ctrl+A Switch for All Cameras
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.ctrlKey && e.key.toLowerCase() === 'a') {
@@ -604,7 +656,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     for (const key in prev) {
                         newState[key] = {
                             ...prev[key],
-                            offline: anyOnline // If any are online, turn all offline. Else, turn all online.
+                            offline: anyOnline
                         }
                     }
                     return newState
@@ -615,56 +667,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
         return () => window.removeEventListener('keydown', handleKeyDown)
     }, [])
 
-
     useEffect(() => {
-        const update = () => {
-            const d = new Date()
-            // Technical Format: YYYY.MM.DD HH:MM:SS
-            const date = d.toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }).replace(/-/g, '.')
-            const time = d.toLocaleTimeString('en-GB', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false,
-                timeZone: 'Africa/Lagos'
-            })
-            setTime(`${date} ${time}`)
-        }
-        const t = setInterval(update, 1000)
-        update()
-        return () => clearInterval(t)
-    }, [])
-
-    // LIVE LOG GENERATOR - HYPER SPEED
-    useEffect(() => {
-        const logPool = [
-            { title: 'Unknown face detected', type: 'alert' },
-            { title: 'Signal lost', type: 'alert' },
-            { title: 'Signal restored', type: 'system' },
-            { title: 'Motion detected', type: 'alert' },
-            { title: 'Door locked', type: 'system' },
-            { title: 'Scan approved', type: 'system' },
-            { title: 'Link success', type: 'system' },
-            { title: 'Sync complete', type: 'system' },
-            { title: 'Access denied', type: 'alert' },
-            { title: 'Key updated', type: 'system' },
-            { title: 'Scan active', type: 'system' },
-            { title: 'System ready', type: 'system' },
-        ]
-
         let timeoutId
 
         const addLog = () => {
             const randomLog = logPool[Math.floor(Math.random() * logPool.length)]
             const newLog = {
-                id: Date.now() + Math.random(), // Ensure unique ID
+                id: Date.now() + Math.random(),
                 time: new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
                 ...randomLog
             }
 
-            setSecurityLogs(prev => [newLog, ...prev.slice(0, 8)]) // Keep 9 items max for density
+            setSecurityLogs(prev => [newLog, ...prev.slice(0, 8)])
 
-            // Deep slowdown for high-end feel (10s to 30s range)
             const nextDelay = Math.floor(Math.random() * 20000) + 10000
             timeoutId = setTimeout(addLog, nextDelay)
         }
@@ -676,43 +691,6 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
     const locations = ["All", "Entrance", "Exit", "Garage", "Basement"]
     const cameras = ["All cameras", "7368770-b53e-4b3b-9096-c81cbd852edb"]
-
-    const navGroups = [
-        {
-            header: "Surveillance",
-            items: [
-                { icon: Cctv, label: "Security Cameras" },
-                { icon: Radio, label: "Primus" },
-                { icon: RfIcon, label: "Recorded Footage" }
-            ]
-        },
-        {
-            header: "Alerts & Log",
-            items: [
-                { icon: SaIcon, label: "Security Alerts" },
-                { icon: FileText, label: "Alert Log" }
-            ]
-        },
-        {
-            header: "Access Control",
-            items: [
-                { icon: Key, label: "Manage Access" }
-            ]
-        },
-        {
-            header: "Teams",
-            items: [
-                { icon: Users, label: "User & Roles" }
-            ]
-        },
-        {
-            header: "Settings",
-            items: [
-                { icon: Settings, label: "System Settings" },
-                { icon: DmIcon, label: "Device Management" }
-            ]
-        }
-    ]
 
     const activeItem = navGroups.flatMap(group => group.items).find(item => item.label === activeTab)
     const ActiveIcon = activeItem?.icon
@@ -727,27 +705,36 @@ const Dashboard = ({ onLogout, onRefresh }) => {
             className="w-full h-full flex bg-void text-[#F2F2F7] font-sans overflow-hidden"
         >
 
-            {/* KINETIC SIDEBAR */}
+            {}
             <motion.nav
                 onHoverStart={() => setSidebarHover(true)}
                 onHoverEnd={() => setSidebarHover(false)}
-                initial={{ width: 300 }}
-                animate={{ width: (sidebarHover || sidebarInitOpen) ? 300 : 82 }}
-                transition={{ type: "spring", stiffness: 120, damping: 24 }}
+                initial={{ x: -100, opacity: 0, width: 300 }}
+                animate={{ x: 0, opacity: 1, width: (sidebarHover || sidebarInitOpen) ? 300 : 82 }}
+                transition={{
+                    x: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                    opacity: { duration: 0.8 },
+                    width: { type: "spring", stiffness: 120, damping: 24 }
+                }}
                 className="h-full bg-[#111113] flex flex-col pb-6 shrink-0 z-40 relative shadow-[2px_0_20px_rgba(0,0,0,0.5)] rounded-r-2xl"
             >
-                {/* Custom Split-Level Border with Curve */}
+                {}
                 <div className="absolute top-20 right-0 bottom-0 left-0 border-r border-t border-white/[0.18] rounded-tr-[40px] pointer-events-none" />
-                {/* Logo Area */}
+                {}
                 <div className="h-20 mb-36 flex items-center whitespace-nowrap transition-all duration-300 z-50 shrink-0 select-none overflow-visible w-full">
-                    {/* Fixed 82px square explicitly enforcing perfect visual centering in sidebar */}
-                    <div className="w-[82px] shrink-0 flex items-center justify-center pointer-events-none">
+                    {}
+                    <div className="w-[82px] shrink-0 flex items-center justify-center pointer-events-none" style={{ perspective: '1000px' }}>
                         <motion.img
+                            layoutId="unified-logo"
                             src={teletraanLogo}
-                            initial={{ rotate: 0 }}
-                            animate={{ rotate: sidebarOpen ? 360 : 0 }}
-                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            initial={{ rotateY: 0 }}
+                            animate={{ rotateY: sidebarOpen ? 360 : 0 }}
+                            transition={{
+                                rotateY: { duration: 0.8, ease: "easeOut" },
+                                layout: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+                            }}
                             className="w-[60px] h-[60px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                            style={{ transformStyle: 'preserve-3d' }}
                             alt="Teletraan"
                         />
                     </div>
@@ -756,7 +743,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </span>
                 </div>
 
-                {/* Nav Items Scroll Area */}
+                {}
                 <div className={`flex-1 overflow-x-hidden overflow-y-auto flex flex-col gap-2 px-3 scrollbar-hide transition-all duration-300`}>
                     {navGroups.map((group, i) => (
                         <div key={i} className={`flex flex-col ${sidebarOpen ? 'gap-1' : 'gap-2'}`}>
@@ -769,7 +756,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </motion.div>
                             )}
 
-                            {/* Items */}
+                            {}
                             {group.items.map((item, j) => {
                                 const isActive = activeTab === item.label
                                 return (
@@ -783,12 +770,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     : 'text-[#AAAAAA] hover:text-[#F2F2F7] border border-transparent hover:border-white/[0.18]'
                                                 }
                                     `}>
-                                            {/* Active Left Accent */}
+                                            {}
                                             {isActive && (
                                                 <div className="absolute left-0 top-[20%] bottom-[20%] w-[2px] bg-white/60 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                                             )}
 
-                                            {/* Subtle Gradient Fill (Active) */}
+                                            {}
                                             {isActive && (
                                                 <div className="absolute inset-0 bg-gradient-to-r from-white/[0.05] via-white/[0.02] to-transparent pointer-events-none" />
                                             )}
@@ -812,7 +799,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     ))}
                 </div>
 
-                {/* Primus Status - Premium Minimal Design */}
+                {}
                 <div className="px-3 shrink-0">
                     <div
                         className={`
@@ -825,7 +812,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         `}
                         onClick={() => { setActiveTab('Primus'); }}
                     >
-                        {/* Status Dot - Same size spot as nav icons (24px) */}
+                        {}
                         <div ref={primusDotRef} className="relative flex items-center justify-center w-[24px] h-[24px] shrink-0">
                             <div className={`w-3 h-3 rounded-full transition-all duration-700 ${systemStats.net > 0
                                 ? 'bg-[#00FF41] shadow-[0_0_12px_rgba(0,255,65,0.6)]'
@@ -838,7 +825,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             )}
                         </div>
 
-                        {/* Text - Single Line */}
+                        {}
                         <motion.span
                             animate={{ opacity: sidebarOpen ? 1 : 0, x: sidebarOpen ? 0 : -10 }}
                             className={`text-[11px] font-bold font-mono tracking-[0.15em] uppercase whitespace-nowrap leading-none transition-colors ${systemStats.net > 0 ? 'text-white/70' : 'text-white/30'}`}
@@ -848,7 +835,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </div>
                 </div>
 
-                {/* Animated "Primus Connected" Toast - Fixed position, outside sidebar overflow */}
+                {}
                 <AnimatePresence>
                     {showPrimusToast && systemStats.net > 0 && !sidebarOpen && (
                         <motion.div
@@ -866,7 +853,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {/* LOGOUT BUTTON */}
+                {}
                 <div className="px-3 mt-4 mb-2 whitespace-nowrap overflow-hidden">
                     <div
                         onClick={() => setIsLogoutModalOpen(true)}
@@ -881,7 +868,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             Log Out
                         </motion.span>
 
-                        {/* Tooltip when sidebar collapsed */}
+                        {}
                         {!sidebarOpen && (
                             <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">
                                 <div className="px-3 py-1.5 bg-[#1A1A1A] border border-white/10 rounded-[4px] shadow-lg">
@@ -893,12 +880,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                 </div>
             </motion.nav>
 
-            {/* MAIN CONTENT */}
+            {}
             <div className="flex-1 flex flex-col relative h-full bg-void">
-                {/* Header */}
+                {}
                 <header className="h-24 w-full border-b border-white/[0.18] bg-[#111113]/80 backdrop-blur-md shrink-0 z-20 electron-draggable relative">
 
-                    {/* ALIGNMENT LAYER: Mimics Main Grid to Center Title over Matrix */}
+                    {}
                     <div className="absolute inset-0 px-6 grid grid-cols-[1fr_260px] gap-6 pointer-events-none">
                         <div className="flex items-center justify-center">
                             <div className={`flex items-center gap-4 select-none transition-all duration-500 ${sidebarOpen ? 'blur-[6px] opacity-40' : 'blur-0 opacity-100'}`}>
@@ -917,16 +904,16 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </div>
                     </div>
 
-                    {/* ACTIONS LAYER */}
+                    {}
                     <div className="absolute right-6 top-0 bottom-0 flex items-center gap-6 no-drag">
-                        {/* Search Bar */}
+                        {}
 
-                        {/* Clock removed from here */}
+                        {}
 
-                        {/* Divider */}
+                        {}
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
-                        {/* Notifications */}
+                        {}
                         <div
                             className="h-full px-4 flex items-center gap-2 border-r border-white/[0.15] cursor-pointer group hover:bg-white/[0.03] transition-colors"
                             onClick={() => setIsNotificationsOpen(true)}
@@ -942,10 +929,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             </span>
                         </div>
 
-                        {/* Divider */}
+                        {}
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
-                        {/* Profile */}
+                        {}
                         <div
                             className="flex items-center gap-3 cursor-pointer group"
                             onClick={() => setIsProfileOpen(true)}
@@ -962,10 +949,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             </span>
                         </div>
 
-                        {/* Divider */}
+                        {}
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
-                        {/* SYSTEM TELEMETRY - TACTICAL ARRAY V2 */}
+                        {}
                         <div className="flex items-center gap-2 px-1.5 h-10 bg-white/[0.03] border border-white/[0.15] rounded-[4px] backdrop-blur-xl shadow-2xl mr-2">
                             <div
                                 onClick={() => window.api?.toggleNetwork?.()}
@@ -986,10 +973,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
                             </div>
 
-                            {/* Inner Vertical Divider */}
+                            {}
                             <div className="w-[1px] h-4 bg-white/20" />
 
-                            {/* Time Node - SUBTLE REFINEMENT */}
                             <div
                                 className="flex items-center gap-1.5 px-2.5 h-8 rounded-[2px] transition-all duration-300 group/time cursor-default"
                             >
@@ -998,18 +984,16 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     className="text-white/60 group-hover/time:text-white/80 transition-colors duration-300"
                                     strokeWidth={2}
                                 />
-                                <span className="text-[11px] font-bold text-white/60 group-hover/time:text-white/90 font-mono tracking-tight tabular-nums transition-colors">
-                                    {time.split(' ')[1]}
-                                </span>
+                                <DigitalClock />
                             </div>
                         </div>
 
-                        {/* Divider */}
+                        {}
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
                         <WindowControls onReload={handleSoftReload} />
 
-                        {/* Connection Label */}
+                        {}
                         <AnimatePresence>
                             {netHover && (
                                 <motion.div
@@ -1034,9 +1018,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </div>
                 </header>
 
-                {/* Toolbar / Action Bar */}
+                {}
                 <div className={`h-16 w-full flex items-center justify-between px-6 shrink-0 ${searchQuery ? 'z-[100]' : 'z-10'} relative`}>
-                    {/* Search - FUNCTIONAL & IMPRESSIVE */}
+                    {}
                     <div className="relative w-72 h-9 group" style={{ zIndex: searchQuery ? 9999 : 50 }}>
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/60 group-focus-within:text-[#F2F2F7] transition-all z-20 pointer-events-none">
                             <Search size={16} strokeWidth={2.5} />
@@ -1049,46 +1033,16 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             className="w-full h-full pl-11 pr-4 bg-[#111113] border border-white/[0.18] rounded-[2px] text-[15px] text-[#F2F2F7] font-medium placeholder-white/30 focus:outline-none focus:border-white/40 focus:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all relative z-10"
                         />
 
-                        {/* SEARCH DROPDOWN */}
+                        {}
                         <AnimatePresence>
                             {searchQuery && (() => {
-                                const allSearchItems = [
-                                    // Pages / Navigation
-                                    { category: 'Pages', label: 'Security Cameras', keywords: 'cameras surveillance cctv live feed', icon: Cctv, action: () => { setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Primus', keywords: 'primus connection hub network', icon: Radio, action: () => { setActiveTab('Primus'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Recorded Footage', keywords: 'recorded footage playback video history', icon: Video, action: () => { setActiveTab('Recorded Footage'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Security Alerts', keywords: 'security alerts warnings notifications', icon: Shield, action: () => { setActiveTab('Security Alerts'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Alert Log', keywords: 'alert log history events timeline', icon: FileText, action: () => { setActiveTab('Alert Log'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Manage Access', keywords: 'access control permissions keys', icon: Key, action: () => { setActiveTab('Manage Access'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'User & Roles', keywords: 'users roles teams members admin', icon: Users, action: () => { setActiveTab('User & Roles'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'System Settings', keywords: 'system settings configuration preferences', icon: Settings, action: () => { setActiveTab('System Settings'); setSearchQuery('') } },
-                                    { category: 'Pages', label: 'Device Management', keywords: 'device management hardware sensors', icon: Settings, action: () => { setActiveTab('Device Management'); setSearchQuery('') } },
-
-                                    // Cameras
-                                    { category: 'Cameras', label: 'Basement Camera', keywords: 'basement cam feed', icon: Video, action: () => { setActiveGridCamera('Basement'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Entrance Camera', keywords: 'entrance front cam feed', icon: Video, action: () => { setActiveGridCamera('Entrance'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Exit Camera', keywords: 'exit back cam feed', icon: Video, action: () => { setActiveGridCamera('Exit'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Garage Camera', keywords: 'garage parking cam feed', icon: Video, action: () => { setActiveGridCamera('Garage'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-                                    { category: 'Cameras', label: 'Staircase Camera', keywords: 'staircase stairs cam feed', icon: Video, action: () => { setActiveGridCamera('Staircase'); setActiveTab('Security Cameras'); setSearchQuery('') } },
-
-                                    // Profile
-                                    { category: 'Profile', label: userProfile.name, keywords: 'profile account user me my avatar photo picture settings logout', icon: Users, isProfile: true, action: () => { setIsProfileOpen(true); setSearchQuery('') } },
-
-                                    // Actions
-                                    { category: 'Actions', label: 'Notifications', keywords: 'notifications alerts messages inbox bell', icon: Bell, action: () => { setIsNotificationsOpen(true); setSearchQuery('') } },
-                                    { category: 'Actions', label: 'Connect to Primus', keywords: 'connect primus network pair hub', icon: Radio, action: () => { setIsPrimusConnectOpen(true); setSearchQuery('') } },
-                                    { category: 'Actions', label: 'Add Camera', keywords: 'add camera new setup device', icon: Plus, action: () => { setIsSetupOpen(true); setSearchQuery('') } },
-                                    { category: 'Actions', label: 'Log Out', keywords: 'logout sign out exit session end', icon: LogOut, action: () => { setIsLogoutModalOpen(true); setSearchQuery('') } },
-                                ]
-
-                                const q = searchQuery.toLowerCase()
+                                const q = searchQuery.toLowerCase();
                                 const filtered = allSearchItems.filter(item =>
                                     item.label.toLowerCase().includes(q) ||
                                     item.keywords.toLowerCase().includes(q) ||
                                     item.category.toLowerCase().includes(q)
-                                )
+                                );
 
-                                // Group by category
                                 const grouped = filtered.reduce((acc, item) => {
                                     if (!acc[item.category]) acc[item.category] = []
                                     acc[item.category].push(item)
@@ -1124,7 +1078,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                         {items.map((item, i) => (
                                                             item.isProfile ? (
-                                                                /* PROFILE CARD — fully clickable */
+                                                                
                                                                 <button
                                                                     key={`${category}-${i}`}
                                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); item.action(); }}
@@ -1144,7 +1098,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                                     <ArrowRight size={14} className="text-[#444] group-hover:text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all shrink-0 pointer-events-none" />
                                                                 </button>
                                                             ) : (
-                                                                /* STANDARD RESULT ROW — fully clickable */
+                                                                
                                                                 <button
                                                                     key={`${category}-${i}`}
                                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); item.action(); }}
@@ -1170,7 +1124,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </AnimatePresence>
                     </div>
 
-                    {/* Filters & Actions */}
+                    {}
                     <div className="flex items-center gap-3">
                         <div className="relative" ref={cameraRef}>
                             <button
@@ -1204,14 +1158,14 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </div>
                 </div>
 
-                {/* CONTENT AREA: 80% Grid + 20% Intel */}
+                {}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3 }}
                     className={`flex-1 p-6 overflow-hidden flex flex-col items-center justify-center`}
                 >
-                    {/* CAMERA HEADER: PILL NAVIGATION (Auditor Solution) */}
+                    {}
                     <AnimatePresence>
                         {activeTab === 'Security Cameras' && (
                             <motion.div
@@ -1241,15 +1195,15 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     </AnimatePresence>
                     {activeTab === 'Security Cameras' && (
                         <>
-                            {/* VISUAL MATRIX (Magnetic Assembly) - BOLDER DESIGN */}
+                            {}
                             <div className="w-full bg-[#111113] rounded-[4px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.9)] relative h-[calc(100%-80px)]">
-                                {/* Top Highlight */}
+                                {}
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/10 z-20 pointer-events-none" />
 
                                 {(currentCamera !== 'All cameras' || currentLocation !== 'All') ? (
-                                    // Single Camera / Location View - Unified Tactical Design
+
                                     <div className="relative w-full h-full bg-void p-2">
-                                        {/* Background Tech Pattern */}
+                                        {}
                                         <div className="absolute inset-0 opacity-[0.08]"
                                             style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
                                         />
@@ -1283,13 +1237,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     </div>
                                 ) : (
                                     <div className="relative w-full h-full bg-void p-2">
-                                        {/* Background Tech Pattern */}
+                                        {}
                                         <div className="absolute inset-0 opacity-[0.08]"
                                             style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
                                         />
 
                                         <div className="grid grid-cols-2 grid-rows-2 w-full h-full gap-2 relative z-10">
-                                            {/* Top Left - Basement */}
+                                            {}
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1307,7 +1261,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </motion.div>
 
-                                            {/* Top Right - Entrance */}
+                                            {}
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1325,7 +1279,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </motion.div>
 
-                                            {/* Bottom Left - Exit */}
+                                            {}
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1343,7 +1297,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </motion.div>
 
-                                            {/* Bottom Right - Garage */}
+                                            {}
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.98 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -1367,7 +1321,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </motion.div>
                                         </div>
 
-                                        {/* Matrix Center focus crosshair */}
+                                        {}
                                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 z-20 pointer-events-none flex items-center justify-center opacity-10">
                                             <div className="w-[2px] h-full bg-white/40" />
                                             <div className="absolute h-[2px] w-full bg-white/40" />
@@ -1378,7 +1332,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </>
                     )}
 
-                    {/* PRIMUS VIEW (Empty State) */}
+                    {}
                     {activeTab === 'Primus' && (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -1406,12 +1360,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         ? 'border-white cursor-pointer'
                                         : 'border-white/10 cursor-not-allowed'}`}
                             >
-                                {/* Solid White Sliding Background - Only active if online */}
+                                {}
                                 {systemStats.net > 0 && (
                                     <div className="absolute inset-0 bg-white z-0 w-full h-full transition-transform duration-500 ease-[0.22,1,0.36,1] group-hover:translate-x-full" />
                                 )}
 
-                                {/* Content Layer */}
+                                {}
                                 <div className="relative z-10 flex items-center gap-3">
                                     <span className={`text-[14px] font-mono font-bold tracking-[0.2em] uppercase transition-colors duration-300 
                                         ${systemStats.net > 0 ? 'text-black group-hover:text-white' : 'text-white/20'}`}>
@@ -1421,7 +1375,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         ${systemStats.net > 0 ? 'text-black group-hover:text-white group-hover:translate-x-1' : 'text-white/10'}`} />
                                 </div>
 
-                                {/* Tactical Corners */}
+                                {}
                                 {systemStats.net > 0 && (
                                     <>
                                         <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-transparent group-hover:border-white/50 transition-colors delay-100" />
@@ -1432,19 +1386,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </motion.div>
                     )}
 
-                    {/* COMING SOON VIEW - TACTICAL INDUSTRIAL DESIGN */}
+                    {}
                     {!['Security Cameras', 'Primus'].includes(activeTab) && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="flex flex-col items-center text-center max-w-2xl relative"
                         >
-                            {/* Background Atmosphere */}
+                            {}
                             <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-[0.03]">
                                 <img src={teletraanLogo} className="w-[500px] grayscale invert animate-pulse duration-[5s]" alt="" />
                             </div>
 
-                            {/* Scanline / HUD Effect */}
+                            {}
                             <div className="w-16 h-1 bg-white/20 rounded-full mb-8 relative overflow-hidden">
                                 <motion.div
                                     animate={{ x: [-64, 64] }}
@@ -1467,7 +1421,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                                 </div>
 
-                                {/* Industrial Corners */}
+                                {}
                                 <div className="absolute -top-4 -left-4 w-8 h-8 border-t-2 border-l-2 border-white/20" />
                                 <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-white/20" />
                             </div>
@@ -1482,7 +1436,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </motion.div>
 
-                {/* PRIMUS CONNECT MODAL - CLEAN GRID DESIGN */}
+                {}
                 <AnimatePresence>
                     {isPrimusConnectOpen && (
                         <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 font-sans">
@@ -1498,7 +1452,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                                 className="w-full max-w-xl bg-[#0E0E10] border border-white/[0.15] shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-2xl relative overflow-hidden flex flex-col"
                             >
-                                {/* Header with Close Button */}
+                                {}
                                 <div className="h-16 border-b border-white/[0.18] flex items-center justify-between px-8">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2 h-2 bg-[#00FF41] rounded-full shadow-[0_0_10px_#00FF41]" />
@@ -1517,7 +1471,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
 
                                 <div className="p-8">
-                                    {/* Step 1: Welcome Modal */}
+                                    {}
                                     {primusConnectStep === 1 && (
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.95 }}
@@ -1538,7 +1492,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             <button
                                                 onClick={() => {
                                                     setPrimusConnectStep(2)
-                                                    // Auto-transition to Form after loader
+
                                                     setTimeout(() => {
                                                         setPrimusConnectStep(3)
                                                     }, 2500)
@@ -1555,7 +1509,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </motion.div>
                                     )}
 
-                                    {/* Step 2: Establishing Link (Loader) */}
+                                    {}
                                     {primusConnectStep === 2 && (
                                         <motion.div
                                             initial={{ opacity: 0 }}
@@ -1573,7 +1527,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </motion.div>
                                     )}
 
-                                    {/* Step 3: Configuration Form */}
+                                    {}
                                     {primusConnectStep === 3 && (
                                         <motion.div
                                             initial={{ opacity: 0, x: 20 }}
@@ -1587,7 +1541,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
 
                                             <div className="flex flex-col gap-5">
-                                                {/* Site */}
+                                                {}
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Site Reference</label>
                                                     <input
@@ -1599,7 +1553,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     />
                                                 </div>
 
-                                                {/* Label */}
+                                                {}
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Device Label</label>
                                                     <input
@@ -1611,7 +1565,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     />
                                                 </div>
 
-                                                {/* Location */}
+                                                {}
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Location</label>
                                                     <input
@@ -1623,7 +1577,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     />
                                                 </div>
 
-                                                {/* Description */}
+                                                {}
                                                 <div className="group">
                                                     <label className="block text-[13px] text-[#888] mb-2 font-medium">Description <span className="opacity-50 font-normal">(Optional)</span></label>
                                                     <input
@@ -1655,7 +1609,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </motion.div>
                                     )}
 
-                                    {/* Step 4: Success */}
+                                    {}
                                     {primusConnectStep === 4 && (
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.9 }}
@@ -1687,7 +1641,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         </div>
                     )}
                 </AnimatePresence>
-                {/* PROFILE MODAL */}
+                {}
                 <AnimatePresence>
                     {isProfileOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
@@ -1704,10 +1658,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 onClick={() => setActiveEditField(null)}
                                 className="w-full max-w-4xl bg-[#111113]/80 backdrop-blur-3xl border border-white/[0.15] shadow-[0_0_100px_rgba(0,0,0,0.9)] rounded-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]"
                             >
-                                {/* Titanium Gradient Light Effect */}
+                                {}
                                 <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#F2F2F7] to-transparent opacity-70 shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
 
-                                {/* Header */}
+                                {}
                                 <div className="px-10 py-8 flex items-center justify-between border-b border-white/[0.18] bg-white/[0.01]">
                                     <div className="flex items-center gap-4">
                                         <div className="w-1.5 h-6 bg-[#00FF41] rounded-full shadow-[0_0_15px_#00FF41]" />
@@ -1721,19 +1675,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     >
                                         <div className="relative p-2">
                                             <X size={20} className="group-hover:scale-110 transition-transform" />
-                                            {/* Tactical Corners */}
+                                            {}
                                             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                         </div>
                                     </button>
                                 </div>
 
-                                {/* Content */}
+                                {}
                                 <div className="p-10 overflow-y-auto custom-scrollbar flex-1 flex flex-col gap-10">
 
-                                    {/* Top Section: Avatar & BADGE */}
+                                    {}
                                     <div className="flex items-center gap-10">
-                                        {/* Avatar */}
+                                        {}
                                         <div className="relative group cursor-pointer shrink-0">
                                             <div className="w-40 h-40 rounded-full border-[3px] border-white/10 p-1.5 group-hover:border-[#00FF41]/50 transition-all duration-500 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                                                 <div className="w-full h-full rounded-full bg-[#111] overflow-hidden relative">
@@ -1748,11 +1702,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {/* Status Dot */}
+                                            {}
                                             <div className="absolute bottom-3 right-3 w-6 h-6 bg-[#00FF41] rounded-full border-[4px] border-[#111113] shadow-[0_0_15px_#00FF41]" />
                                         </div>
 
-                                        {/* Identity Info */}
+                                        {}
                                         <div className="flex-1 space-y-2">
                                             <h3 className="text-4xl font-bold text-[#F2F2F7] tracking-[0.05em] uppercase">{userProfile.name}</h3>
                                             <div className="flex items-center gap-4">
@@ -1766,9 +1720,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </div>
                                     </div>
 
-                                    {/* Form Grid */}
+                                    {}
                                     <div className="grid grid-cols-2 gap-x-12 gap-y-8">
-                                        {/* Name */}
+                                        {}
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Name</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1784,7 +1738,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#CCCCCC] hover:border-white/20'}
                                                     `}
                                                 />
-                                                {/* Corners */}
+                                                {}
                                                 <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-white/40" />
                                                 <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-white/40" />
                                                 <button
@@ -1801,7 +1755,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
                                         </div>
 
-                                        {/* Email */}
+                                        {}
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Email</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1817,7 +1771,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#CCCCCC] hover:border-white/20'}
                                                     `}
                                                 />
-                                                {/* Corners */}
+                                                {}
                                                 <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-white/40" />
                                                 <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-white/40" />
                                                 <button
@@ -1834,7 +1788,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
                                         </div>
 
-                                        {/* Password */}
+                                        {}
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Password</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1851,7 +1805,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#F2F2F7] group-hover:border-[#00FF41]/50'}
                                                     `}
                                                 />
-                                                {/* Corners */}
+                                                {}
                                                 <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-white/10 group-hover:border-[#00FF41]/30" />
                                                 <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-white/10 group-hover:border-[#00FF41]/30" />
                                                 <button
@@ -1870,7 +1824,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             </div>
                                         </div>
 
-                                        {/* Phone */}
+                                        {}
                                         <div className="flex flex-col gap-3">
                                             <label className="text-[11px] text-[#DDDDDD] font-bold tracking-[0.2em] uppercase pl-1">Contact</label>
                                             <div className="relative group" onClick={(e) => e.stopPropagation()}>
@@ -1887,7 +1841,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             : 'border-white/[0.15] text-[#CCCCCC] hover:border-white/20'}
                                                     `}
                                                 />
-                                                {/* Corners */}
+                                                {}
                                                 <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-white/40" />
                                                 <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-white/40" />
                                                 <button
@@ -1907,7 +1861,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
                                 </div>
 
-                                {/* Action Footer */}
+                                {}
                                 <div className="px-10 py-6 border-t border-white/[0.18] bg-transparent flex justify-end">
                                     <button
                                         onClick={() => {
@@ -1928,7 +1882,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {/* LOCATION SELECTION MODAL */}
+                {}
                 <AnimatePresence>
                     {isLocationOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-10">
@@ -1986,7 +1940,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 ${currentLocation === loc ? 'border-[#F2F2F7] shadow-[0_0_20px_rgba(255,255,255,0.05)]' : ''}
                                             `}
                                             >
-                                                {/* Tech Grid Background */}
+                                                {}
                                                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
 
                                                 <div className={`relative z-10 p-4 border border-white/10 rounded-full transition-all duration-500 group-hover:scale-110 group-hover:border-[#F2F2F7]/30
@@ -1995,7 +1949,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     <Icon size={24} strokeWidth={1.5} />
                                                 </div>
 
-                                                {/* Label Reveal */}
+                                                {}
                                                 <div className="absolute bottom-4 opacity-100 transition-all duration-300 transform translate-y-0">
                                                     <span className="text-[10px] font-bold tracking-[0.2em] text-[#F2F2F7] uppercase bg-[#111113]/90 px-3 py-1 border border-white/10 rounded-[2px] backdrop-blur-md">
                                                         {loc}
@@ -2011,7 +1965,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {/* CAMERA SELECTION MODAL */}
+                {}
                 <AnimatePresence>
                     {isCameraOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-10">
@@ -2068,11 +2022,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     <Video size={24} />
                                                 ) : (
                                                     <div className="relative w-6 h-6 flex items-center justify-center">
-                                                        {/* Rotating Focus Ring */}
+                                                        {}
                                                         <div className="absolute inset-[-6px] border border-current rounded-full opacity-20 border-t-transparent border-l-transparent animate-[spin_4s_linear_infinite]" />
                                                         <div className="absolute inset-[-6px] border border-current rounded-full opacity-10 border-b-transparent border-r-transparent animate-[spin_4s_linear_infinite_reverse]" />
 
-                                                        {/* Lens Assembly SVG */}
+                                                        {}
                                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full relative z-10">
                                                             <circle cx="12" cy="12" r="10" strokeOpacity="0.5" />
                                                             <circle cx="12" cy="12" r="4" />
@@ -2086,7 +2040,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                             <path d="M17 17l-1.5-1.5" />
                                                         </svg>
 
-                                                        {/* Central Sensor Glow */}
+                                                        {}
                                                         <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-20 rounded-full blur-md transition-opacity duration-500" />
                                                         <div className="absolute w-1.5 h-1.5 bg-current rounded-full" />
                                                     </div>
@@ -2107,10 +2061,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {/* LOGOUT CONFIRMATION MODAL */}
+                {}
 
-
-                {/* SETUP MODAL */}
+                {}
                 <AnimatePresence>
                     {isSetupOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-8">
@@ -2126,7 +2079,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                                 className="w-full max-w-5xl bg-[#111113]/80 backdrop-blur-3xl border border-white/[0.15] shadow-[0_0_100px_rgba(0,0,0,0.9)] rounded-3xl relative overflow-hidden flex flex-col max-h-[90vh]"
                             >
-                                {/* Header */}
+                                {}
                                 <div className="px-12 py-8 border-b border-white/[0.15] flex justify-between items-center bg-white/[0.01]">
                                     <div>
                                         <h2 className="text-3xl font-bold text-[#F2F2F7] tracking-[0.1em] uppercase drop-shadow-lg">Device Integration</h2>
@@ -2142,7 +2095,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     >
                                         <div className="relative p-2">
                                             <X size={24} className="group-hover:scale-110 transition-transform" />
-                                            {/* Tactical Corners */}
+                                            {}
                                             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                         </div>
@@ -2150,10 +2103,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
 
                                 <div className="p-12 overflow-y-auto custom-scrollbar">
-                                    {/* STEP 1: METHOD SELECTION */}
+                                    {}
                                     {setupStep === 1 && (
                                         <div className="grid grid-cols-2 gap-8">
-                                            {/* Smart Setup (Disabled) */}
+                                            {}
                                             <button
                                                 disabled
                                                 className="relative group w-full aspect-video bg-[#111113] border border-white/[0.04] flex flex-col items-center justify-center overflow-hidden opacity-50 cursor-not-allowed"
@@ -2168,7 +2121,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </button>
 
-                                            {/* Manual Setup */}
+                                            {}
                                             <button
                                                 onClick={() => setSetupMethod('manual')}
                                                 className={`relative group w-full aspect-video bg-[#111113] border border-white/[0.15] hover:border-[#F2F2F7]/50 transition-all duration-300 flex flex-col items-center justify-center overflow-hidden cursor-pointer
@@ -2195,11 +2148,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         </div>
                                     )}
 
-                                    {/* STEP 2: MANUAL FORM */}
+                                    {}
                                     {setupStep === 2 && (
                                         <div className="flex flex-col gap-6 p-2">
 
-                                            {/* Device Type */}
+                                            {}
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Device Type</label>
                                                 <div className="relative group z-50">
@@ -2215,11 +2168,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         <ChevronDown size={14} className={`text-[#666] transition-transform duration-300 ${isDeviceTypeOpen ? 'rotate-180 text-[#F2F2F7]' : ''}`} />
                                                     </button>
 
-                                                    {/* Corner Accents */}
+                                                    {}
                                                     <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white/20 group-hover:border-[#F2F2F7] transition-colors pointer-events-none" />
                                                     <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white/20 group-hover:border-[#F2F2F7] transition-colors pointer-events-none" />
 
-                                                    {/* Dropdown Menu */}
+                                                    {}
                                                     <AnimatePresence>
                                                         {isDeviceTypeOpen && (
                                                             <motion.div
@@ -2250,7 +2203,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {/* IP Address */}
+                                            {}
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">IP Address</label>
                                                 <div className="relative group">
@@ -2260,7 +2213,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Username */}
+                                            {}
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Username <span className="text-[#333] ml-2">(OPTIONAL)</span></label>
                                                 <div className="relative group">
@@ -2270,7 +2223,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Device Name */}
+                                            {}
                                             <div className="flex flex-col">
                                                 <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Device Name</label>
                                                 <div className="relative group">
@@ -2280,7 +2233,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Port & Password */}
+                                            {}
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div className="flex flex-col">
                                                     <label className="text-[10px] text-[#666] font-bold tracking-[0.2em] uppercase mb-2 pl-1">Port</label>
@@ -2300,7 +2253,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Action Button */}
+                                            {}
                                             <div className="flex justify-center mt-4">
                                                 <button
                                                     className="relative group w-full h-14 border border-white overflow-hidden rounded-[2px] cursor-pointer"
@@ -2320,7 +2273,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     )}
                                 </div>
 
-                                {/* Footer Action for Step 1 */}
+                                {}
                                 {setupStep === 1 && setupMethod === 'manual' && (
                                     <div className="p-8 border-t border-white/[0.18] flex justify-end bg-[#111113]/30">
                                         <button
@@ -2341,11 +2294,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-
-
-
-
-                {/* SOVEREIGN COMMUNICATIONS HUB */}
+                {}
                 <AnimatePresence>
                     {isNotificationsOpen && (
                         <div className="fixed inset-0 z-[1500] flex items-center justify-center p-6">
@@ -2361,10 +2310,10 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 exit={{ opacity: 0, scale: 0.98, y: 20 }}
                                 className="w-full max-w-6xl h-[85vh] bg-[#111113] border border-white/20 shadow-[0_0_100px_rgba(0,0,0,0.9)] rounded-[4px] relative overflow-hidden flex flex-col"
                             >
-                                {/* Titanium Top Edge Glow */}
+                                {}
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent shadow-[0_0_20px_white]" />
 
-                                {/* Header Assembly */}
+                                {}
                                 <div className="h-24 border-b border-white/[0.15] flex items-center justify-between px-10 bg-white/[0.02]">
                                     <div className="flex items-center gap-6">
                                         <div className="flex flex-col">
@@ -2377,7 +2326,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     >
                                         <div className="relative p-2">
                                             <X size={24} className="group-hover:scale-110 transition-transform" />
-                                            {/* Tactical Corners */}
+                                            {}
                                             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                         </div>
@@ -2385,7 +2334,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 </div>
 
                                 <div className="flex-1 flex overflow-hidden">
-                                    {/* Sidebar: Department Selection */}
+                                    {}
                                     <div className="w-[300px] border-r border-white/[0.15] flex flex-col py-6 bg-[#111113]/50">
                                         {Object.keys(notificationGroups).map((tabKey) => {
                                             const isActive = activeNotificationTab === tabKey
@@ -2399,7 +2348,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         ${isActive ? 'bg-white/[0.05] border-y border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]' : 'hover:bg-white/[0.02] border-y border-transparent'}
                                                     `}
                                                 >
-                                                    {/* Active Indicator Bar */}
+                                                    {}
                                                     {isActive && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-white shadow-[0_0_10px_white]" />}
 
                                                     <div className="flex flex-col items-start overflow-hidden justify-center flex-1">
@@ -2412,9 +2361,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         })}
                                     </div>
 
-                                    {/* Conversation Feed */}
+                                    {}
                                     <div className="flex-1 flex flex-col bg-[#111113]/30 relative">
-                                        {/* Grainy Mesh Layer */}
+                                        {}
                                         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
                                         <div className="flex-1 p-10 overflow-y-auto custom-scrollbar relative z-10 flex flex-col gap-8">
@@ -2448,7 +2397,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             })}
                                         </div>
 
-                                        {/* Institutional Footer (No Input Bar) */}
+                                        {}
                                         <div className="h-16 border-t border-white/[0.15] bg-white/[0.02] flex items-center justify-center px-10">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
@@ -2462,7 +2411,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {/* CAMERA DETAIL MODAL (NEW POPUP) */}
+                {}
                 <AnimatePresence>
                     {isCameraDetailOpen && (
                         <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 sm:p-10">
@@ -2479,15 +2428,15 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                                 className="w-full max-w-7xl h-[85vh] bg-[#111113] border border-[#F2F2F7]/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-2xl flex flex-col overflow-hidden relative z-10"
                             >
-                                {/* Titanium Edge Glow */}
+                                {}
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#F2F2F7] to-transparent opacity-50 shadow-[0_0_15px_white]" />
 
-                                {/* Header */}
+                                {}
                                 <div className="h-24 px-10 flex items-center justify-between border-b border-white/[0.15] bg-white/[0.02] shrink-0">
                                     <div className="flex items-center gap-6">
                                         <div className="flex items-center gap-3">
                                             <h2 className="text-[28px] font-bold text-[#F2F2F7] tracking-[0.15em] uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{activeGridCamera || 'Living Room'}</h2>
-                                            {/* STATUS INDICATOR */}
+                                            {}
                                             {(() => {
                                                 const cam = cameraRegistry[activeGridCamera || 'Living Room']
                                                 const isOffline = cam?.offline || systemStats.net === 0
@@ -2535,7 +2484,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                         >
                                             <div className="relative p-2">
                                                 <X size={24} className="group-hover:scale-110 transition-transform" />
-                                                {/* Tactical Corners */}
+                                                {}
                                                 <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#666] group-hover:border-[#F2F2F7] opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                             </div>
@@ -2543,19 +2492,19 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     </div>
                                 </div>
 
-                                {/* SCROLLABLE CONTENT AREA */}
+                                {}
                                 <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#0E0E10]">
                                     <div className="p-10 flex flex-col gap-8">
 
-                                        {/* VIDEO PLAYER SECTION (First Fold) */}
+                                        {}
                                         <div
                                             id="camera-full-view"
                                             className="relative w-full aspect-video bg-[#111113] rounded-[4px] border border-white/10 overflow-hidden group shadow-2xl"
                                         >
-                                            {/* Tech Overlay */}
+                                            {}
                                             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px] opacity-30 pointer-events-none" />
 
-                                            {/* Camera Feed Image (Modal View) */}
+                                            {}
                                             {(() => {
                                                 const camImages = {
                                                     'Basement': basementImg,
@@ -2574,9 +2523,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 return null
                                             })()}
 
-                                            {/* Status Top Right - removed for pure live view */}
+                                            {}
 
-                                            {/* CENTER CONTENT - PROFESSIONAL SURVEILLANCE OSD */}
+                                            {}
                                             <div className="absolute inset-0 z-10">
                                                 {(() => {
                                                     const cam = cameraRegistry[activeGridCamera || 'Living Room']
@@ -2592,7 +2541,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                     } else {
                                                         return (
                                                             <>
-                                                                {/* TOP BAR - SOURCE ID */}
+                                                                {}
                                                                 <div className="absolute top-6 left-6 flex items-center gap-3">
                                                                     <div className="flex items-center gap-2 px-2 py-0.5 bg-red-600 rounded-[1px] animate-pulse">
                                                                         <span className="text-[9px] font-mono font-black text-white uppercase tracking-tighter">LIVE</span>
@@ -2601,11 +2550,9 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                                     <span className="text-[11px] font-mono font-black text-white tracking-[0.2em] uppercase">{activeGridCamera || 'CAM_01'}</span>
                                                                 </div>
 
-
-
-                                                                {/* BOTTOM CONTROLS */}
+                                                                {}
                                                                 <div className="absolute bottom-6 right-6 flex items-center justify-center">
-                                                                    {/* Expand Only */}
+                                                                    {}
                                                                     <div
                                                                         className="flex items-center justify-center w-11 h-11 bg-[#111113]/70 backdrop-blur-md rounded-lg border border-white/20 hover:border-white/50 hover:bg-[#111113]/90 cursor-pointer transition-all shadow-[0_4px_20px_rgba(0,0,0,0.6)] group/expand"
                                                                         onClick={(e) => {
@@ -2620,13 +2567,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                                     </div>
                                                                 </div>
 
-                                                                {/* Center Crosshair (Extremely Subtle) */}
+                                                                {}
                                                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 opacity-10">
                                                                     <div className="w-full h-[1px] bg-white absolute top-1/2" />
                                                                     <div className="h-full w-[1px] bg-white absolute left-1/2" />
                                                                 </div>
 
-                                                                {/* ALERT OVERLAY */}
+                                                                {}
                                                                 {cam?.alert && <div className="absolute inset-0 border-[4px] border-red-500/80 bg-red-500/20 shadow-[inset_0_0_150px_rgba(239,68,68,0.5)] animate-pulse z-20 pointer-events-none" />}
                                                             </>
                                                         )
@@ -2634,14 +2581,14 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 })()}
                                             </div>
 
-                                            {/* Corner Markers (Titanium Style) */}
+                                            {}
                                             <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-[#F2F2F7]/30" />
                                             <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-[#F2F2F7]/30" />
                                             <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-[#F2F2F7]/30" />
                                             <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-[#F2F2F7]/30" />
                                         </div>
 
-                                        {/* ALERT HISTORY SECTION (Titanium Edition) */}
+                                        {}
                                         <div className="mt-8 flex flex-col gap-8 pb-10">
                                             <div className="flex items-center justify-between border-b border-white/[0.15] pb-4 px-2">
                                                 <h3 className="text-[18px] font-bold text-[#F2F2F7] tracking-[0.1em] uppercase drop-shadow-md">
@@ -2649,11 +2596,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </h3>
                                             </div>
 
-                                            {/* Date Group: May 27, 2025 */}
+                                            {}
                                             <div className="flex flex-col gap-4">
                                                 <span className="text-[11px] font-bold text-[#666] tracking-[0.1em] uppercase pl-1">May 27, 2026</span>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {/* Card 1: Motion Detected */}
+                                                    {}
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2673,7 +2620,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Card 2: Unknown Face Detected */}
+                                                    {}
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2695,11 +2642,11 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Date Group: May 04, 2025 */}
+                                            {}
                                             <div className="flex flex-col gap-4">
                                                 <span className="text-[11px] font-bold text-[#666] tracking-[0.1em] uppercase pl-1">May 04, 2026</span>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {/* Card 3: Door Forced Open */}
+                                                    {}
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2719,7 +2666,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Card 4: Door Forced Open */}
+                                                    {}
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2739,7 +2686,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Card 5: Motion Detected */}
+                                                    {}
                                                     <div className="relative flex items-center justify-between p-5 bg-[#111113] border border-white/[0.15] hover:border-white/[0.2] transition-all duration-300 rounded-xl group cursor-pointer h-24 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
 
                                                         <div className="flex items-center gap-5 relative z-10">
@@ -2768,7 +2715,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {/* LOGOUT CONFIRMATION */}
+                {}
                 <AnimatePresence>
                     {isLogoutModalOpen && (
                         <div className="fixed inset-0 z-[1500] flex items-center justify-center p-6">
@@ -2786,7 +2733,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 transition={{ duration: 0.2, ease: 'easeOut' }}
                                 className="w-full max-w-[420px] bg-[#1A1A1A] border border-white/[0.15] rounded-xl shadow-[0_25px_80px_rgba(0,0,0,0.9)] relative z-10 overflow-hidden"
                             >
-                                {/* Content */}
+                                {}
                                 <div className="px-8 pt-10 pb-6 text-center">
                                     <h3 className="text-[20px] font-semibold text-white mb-4">Are you sure you want to Log Out?</h3>
                                     <p className="text-[14px] text-[#999] leading-relaxed">
@@ -2797,7 +2744,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                     </p>
                                 </div>
 
-                                {/* Actions */}
+                                {}
                                 <div className="px-8 pb-8 flex items-center justify-center gap-4">
                                     <button
                                         onClick={() => setIsLogoutModalOpen(false)}
@@ -2817,7 +2764,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                     )}
                 </AnimatePresence>
 
-                {/* SYSTEM RELOAD OVERLAY - SPECTRAL LOGO */}
+                {}
                 <AnimatePresence>
                     {isReloading && (
                         <motion.div
@@ -2827,35 +2774,23 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             transition={{ duration: 0.8, ease: "easeInOut" }}
                             className="fixed inset-0 z-[2000] flex items-center justify-center bg-[#111113]/50 backdrop-blur-[40px]"
                         >
-                            <motion.div
-                                initial={{ scale: 0.8, opacity: 0, filter: 'blur(20px)' }}
-                                animate={{
-                                    scale: [0.85, 0.9, 0.85],
-                                    opacity: [0.05, 0.12, 0.05],
-                                    filter: ['blur(4px)', 'blur(8px)', 'blur(4px)']
-                                }}
-                                transition={{
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                                className="relative"
-                            >
-                                <img
+                            <motion.div className="relative z-10 flex items-center justify-center">
+                                <motion.img
+                                    layoutId="unified-logo"
                                     src={teletraanLogo}
-                                    className="w-[600px] h-[600px] grayscale brightness-200"
+                                    className="w-[240px] h-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(20px) grayscale(100%)' }}
+                                    animate={{ opacity: 0.4, scale: 0.95, filter: 'blur(6px) grayscale(100%)' }}
+                                    transition={{
+                                        duration: 1.5,
+                                        ease: "easeOut",
+                                        layout: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+                                    }}
                                     alt="Teletraan Spectral Logo"
-                                />
-
-                                {/* TACTICAL SCAN LINE - RELOAD SPECIFIC */}
-                                <motion.div
-                                    animate={{ top: ["-10%", "110%"] }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                    className="absolute left-0 right-0 h-[2px] bg-white/20 blur-[1px] z-10"
                                 />
                             </motion.div>
 
-                            {/* RELOAD TELEMETRY */}
+                            {}
                             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
                                 <span className="text-white text-[11px] font-mono font-black tracking-[0.5em] uppercase animate-pulse">
                                     SYSTEM LOADING... PLEASE WAIT

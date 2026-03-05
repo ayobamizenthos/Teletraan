@@ -6,8 +6,6 @@ const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow = null;
 
-// ─── AUTO-UPDATER: WITH DASHBOARD UI ───────────────────────────────────────────
-// Downloads in background, notifies React UI, auto-installs on quit or manual restart.
 function setupAutoUpdater() {
     const { autoUpdater } = require('electron-updater');
     autoUpdater.autoDownload = true;
@@ -19,17 +17,15 @@ function setupAutoUpdater() {
         return;
     }
 
-    // Check immediately on launch
     autoUpdater.checkForUpdates().catch((err) => {
         console.log('[AutoUpdater] Initial check error:', err.message);
     });
 
-    // Check periodically for updates (every 5 minutes to avoid rate limits)
     setInterval(() => {
         autoUpdater.checkForUpdates().catch((err) => {
             console.log('[AutoUpdater] Periodic check error:', err.message);
         });
-    }, 300000); // 5 minutes check
+    }, 300000);
 
     function notifyUI(status, data = {}) {
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -61,7 +57,6 @@ function setupAutoUpdater() {
     });
 }
 
-// ─── WINDOW CREATION ─────────────────────────────────────────────────────────
 function createWindow() {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
@@ -88,19 +83,16 @@ function createWindow() {
     const { Menu } = require('electron');
     Menu.setApplicationMenu(null);
 
-    // Completely lock down the window from native right-clicks
     mainWindow.webContents.on('context-menu', (e) => {
         e.preventDefault();
     });
 
-    // Prevent drag and drop navigations into the electron window
     mainWindow.webContents.on('will-navigate', (e) => {
         e.preventDefault();
     });
 
-    // Dev mode shortcuts
     mainWindow.webContents.on('before-input-event', (event, input) => {
-        // KILL DEFAULT RELOAD (Ctrl+R, F5) TO ALLOW CUSTOM SYSTEM RELOAD
+
         if ((input.control && input.key.toLowerCase() === 'r') || input.key === 'F5') {
             event.preventDefault();
             mainWindow.webContents.send('soft-reload-trigger');
@@ -118,7 +110,7 @@ function createWindow() {
     });
 
     if (isDev) {
-        // Retry connecting to Vite dev server — it may not be ready yet
+
         const loadDevURL = () => {
             mainWindow.webContents.session.clearCache().then(() => {
                 mainWindow.loadURL('http://localhost:5173').catch((err) => {
@@ -132,7 +124,6 @@ function createWindow() {
         mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
     }
 
-    // Window controls
     ipcMain.on('window-minimize', () => mainWindow.minimize());
     ipcMain.on('window-maximize', () => {
         if (mainWindow.isMaximized()) {
@@ -143,7 +134,6 @@ function createWindow() {
     });
     ipcMain.on('window-close', () => mainWindow.close());
 
-    // Physical Window Shake (Desktop Vibration Simulation)
     ipcMain.on('window-shake', () => {
         if (!mainWindow) return;
         const [x, y] = mainWindow.getPosition();
@@ -165,14 +155,10 @@ function createWindow() {
         shake();
     });
 
-    // SYSTEM LOGIC: Real Telemetry (Battery & Network)
     let isConnected = true;
-    let manualOffline = false; // Manual Kill Switch
+    let manualOffline = false;
     const startTime = Date.now();
 
-
-
-    // Function to check real network status
     function updateNetworkStatus() {
         const interfaces = os.networkInterfaces();
         let found = false;
@@ -195,7 +181,7 @@ function createWindow() {
     });
 
     ipcMain.on('set-network-state', (event, state) => {
-        // state: true for online (manualOffline = false), false for offline (manualOffline = true)
+
         manualOffline = !state;
         console.log(`[System] Tactical Explicit Set: ${manualOffline ? 'OFFLINE' : 'ONLINE'}`);
         broadcastStats();
@@ -205,17 +191,15 @@ function createWindow() {
         if (!mainWindow) return;
 
         const stats = {
-            net: (isConnected && !manualOffline) ? 1 : 0, // Force 0 if manual offline
+            net: (isConnected && !manualOffline) ? 1 : 0,
             uptime: Math.floor((Date.now() - startTime) / 1000)
         };
 
         mainWindow.webContents.send('system-stats', stats);
     }
 
-    // Initial check
     updateNetworkStatus();
 
-    // Periodic Update (every 5 seconds for real sync)
     const statsInterval = setInterval(() => {
         updateNetworkStatus();
         broadcastStats();
@@ -227,7 +211,6 @@ function createWindow() {
     });
 }
 
-// ─── APP LIFECYCLE ───────────────────────────────────────────────────────────
 app.whenReady().then(() => {
     createWindow();
     setupAutoUpdater();

@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-/* === TELETRAAN SOVEREIGN DESIGN SYSTEM === */
-
 @theme {
     --color-obsidian: #0E0E10;
     --color-void: #111113;
@@ -34,14 +32,12 @@ body,
 }
 
 body {
-    /* ORIGINAL INSTITUTIONAL DEPTH */
+    
     background: radial-gradient(circle at 50% 0%, #111111 0%, #111113 100%);
     color: var(--color-ghost-grey);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
 }
-
-/* === MATERIAL PHYSICS === */
 
 .bezel-titanium {
     border: 1px solid var(--color-titanium);
@@ -56,7 +52,6 @@ body {
     text-shadow: 0 0 12px rgba(0, 255, 65, 0.4);
 }
 
-/* ELECTRON DRAG */
 .electron-draggable {
     -webkit-app-region: drag;
 }
@@ -65,13 +60,11 @@ body {
     -webkit-app-region: no-drag;
 }
 
-/* SCROLLBAR - INVISIBLE */
 ::-webkit-scrollbar {
     width: 0px;
     background: transparent;
 }
 
-/* === ANIMATIONS === */
 @keyframes pulse-scan {
     0% {
         transform: translateX(-100%);
