@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     MapPin, Minus, Square, X, Bell, RefreshCw, Key, Wrench, Loader2, Wifi, Activity, CheckCircle2,
@@ -714,11 +714,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                 className="h-full bg-[#111113] flex flex-col pb-6 shrink-0 z-40 relative shadow-[2px_0_20px_rgba(0,0,0,0.5)] rounded-r-2xl"
             >
                 { }
-                <div className="absolute top-20 right-0 bottom-0 left-0 border-r border-t border-white/[0.18] rounded-tr-[40px] pointer-events-none" />
                 { }
-                <div className="h-20 mb-36 flex items-center whitespace-nowrap transition-all duration-300 z-50 shrink-0 select-none overflow-visible w-full">
+                <div className="absolute top-[6rem] right-0 bottom-0 left-0 border-r border-t border-white/[0.18] rounded-tr-[2.5rem] pointer-events-none" />
+                { }
+                <div className="h-24 mb-[5.25rem] flex items-center whitespace-nowrap transition-all duration-300 z-50 shrink-0 select-none overflow-visible w-full">
                     { }
-                    <div className="w-[82px] shrink-0 flex items-center justify-center pointer-events-none" style={{ perspective: '1000px' }}>
+                    <div className="w-[5.125rem] shrink-0 flex items-center justify-center pointer-events-none" style={{ perspective: '1000px' }}>
                         <motion.img
                             layoutId="unified-logo"
                             src={teletraanLogo}
@@ -728,12 +729,12 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                 rotateY: { duration: 0.8, ease: "easeOut" },
                                 layout: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
                             }}
-                            className="w-[60px] h-[60px] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                            className="w-[4.25rem] h-[4.25rem] object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
                             style={{ transformStyle: 'preserve-3d' }}
                             alt="Teletraan"
                         />
                     </div>
-                    <span className={`-ml-2 text-[30px] font-black tracking-[0.1em] uppercase bg-gradient-to-b from-[#F9F9FB] via-[#D1D1D6] to-[#8E8E93] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(209,209,214,0.15)] transition-all duration-300 ${sidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'}`}>
+                    <span className={`-ml-1 text-[1.5rem] font-black tracking-[0.15em] uppercase bg-gradient-to-b from-[#F9F9FB] via-[#D1D1D6] to-[#8E8E93] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(209,209,214,0.15)] transition-all duration-300 ${sidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'}`}>
                         Teletraan
                     </span>
                 </div>
@@ -745,7 +746,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             {group.header && (
                                 <motion.div
                                     animate={{ opacity: sidebarOpen ? 1 : 0, height: sidebarOpen ? 'auto' : 0 }}
-                                    className="px-3 text-[13px] font-mono text-[#777777] uppercase tracking-widest mb-1 whitespace-nowrap overflow-hidden"
+                                    className="px-3 text-[0.8125rem] font-mono text-[#777777] uppercase tracking-widest mb-1 whitespace-nowrap overflow-hidden"
                                 >
                                     {group.header}
                                 </motion.div>
@@ -782,7 +783,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
 
                                             <motion.span
                                                 animate={{ opacity: sidebarOpen ? 1 : 0, x: sidebarOpen ? 0 : -10 }}
-                                                className={`text-[15px] tracking-wide z-10 ${isActive ? 'font-semibold text-white' : 'font-medium'}`}
+                                                className={`text-[0.9375rem] tracking-wide z-10 ${isActive ? 'font-semibold text-white' : 'font-medium'}`}
                                             >
                                                 {item.label}
                                             </motion.span>
@@ -798,14 +799,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                 <div className="px-3 shrink-0">
                     <div
                         className={`
-                            relative flex items-center gap-4 px-3 py-3 rounded-[2px] transition-all duration-500 whitespace-nowrap cursor-pointer group/primus
+                            relative flex items-center gap-4 px-3 py-3 rounded-[2px] transition-all duration-500 whitespace-nowrap cursor-default group/primus
                             ${sidebarOpen
                                 ? (systemStats.net > 0
-                                    ? 'bg-white/[0.02] border border-white/[0.18] hover:border-[#00FF41]/30'
-                                    : 'bg-white/[0.02] border border-white/[0.18] hover:border-white/10')
+                                    ? 'bg-white/[0.02] border border-white/[0.18]'
+                                    : 'bg-white/[0.02] border border-white/[0.18]')
                                 : 'border border-transparent'}
                         `}
-                        onClick={() => { setActiveTab('Primus'); }}
                     >
                         { }
                         <div ref={primusDotRef} className="relative flex items-center justify-center w-[24px] h-[24px] shrink-0">
@@ -892,7 +892,7 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                                             : 'text-[#F2F2F7] drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]'} transition-all duration-300`}
                                     />
                                 )}
-                                <span className={`text-[24px] font-bold tracking-[0.15em] uppercase transition-colors duration-500 ${systemStats.net === 0 ? 'text-[#FF3B30] drop-shadow-[0_0_15px_rgba(255,59,48,0.3)]' : 'text-[#F2F2F7] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]'}`}>
+                                <span className={`text-[1.5rem] font-bold tracking-[0.15em] uppercase transition-colors duration-500 ${systemStats.net === 0 ? 'text-[#FF3B30] drop-shadow-[0_0_15px_rgba(255,59,48,0.3)]' : 'text-[#F2F2F7] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]'}`}>
                                     {systemStats.net > 0 ? activeTab : 'OFFLINE'}
                                 </span>
                             </div>
@@ -932,14 +932,14 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             className="flex items-center gap-3 cursor-pointer group"
                             onClick={() => setIsProfileOpen(true)}
                         >
-                            <div className="w-7 h-7 rounded-full bg-[#111] border border-white/[0.25] flex items-center justify-center overflow-hidden group-hover:border-[#F2F2F7] transition-all shadow-[0_0_8px_rgba(255,255,255,0.08)]">
+                            <div className="w-[1.75rem] h-[1.75rem] rounded-full bg-[#111] border border-white/[0.25] flex items-center justify-center overflow-hidden group-hover:border-[#F2F2F7] transition-all shadow-[0_0_8px_rgba(255,255,255,0.08)]">
                                 <img
                                     src={zenthosImg}
                                     className="w-full h-full object-cover opacity-100 transition-opacity"
                                     alt="Profile"
                                 />
                             </div>
-                            <span className="text-[16px] text-[#bbb] font-medium group-hover:text-[#F2F2F7] transition-colors">
+                            <span className="text-[1rem] text-[#bbb] font-medium group-hover:text-[#F2F2F7] transition-colors">
                                 My Profile
                             </span>
                         </div>
@@ -948,18 +948,17 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                         <div className="h-8 w-[1px] bg-white/[0.15]" />
 
                         { }
-                        <div className="flex items-center gap-2 px-1.5 h-10 bg-white/[0.03] border border-white/[0.15] rounded-[4px] backdrop-blur-xl shadow-2xl mr-2">
+                        <div className="flex items-center gap-2 px-1.5 h-[2.5rem] bg-white/[0.03] border border-white/[0.15] rounded-[4px] backdrop-blur-xl shadow-2xl mr-2">
                             <div
                                 onClick={() => window.api?.toggleNetwork?.()}
                                 onMouseEnter={() => setNetHover(true)}
                                 onMouseLeave={() => setNetHover(false)}
                                 onMouseMove={handleMouseMove}
-                                className="flex items-center justify-center w-9 h-8 rounded-[2px] hover:bg-white/[0.05] transition-all duration-300 group/net cursor-pointer"
+                                className="flex items-center justify-center w-[2.25rem] h-[2rem] rounded-[2px] hover:bg-white/[0.05] transition-all duration-300 group/net cursor-pointer"
                             >
                                 <div className="relative">
                                     <Wifi
-                                        size={16}
-                                        className={`${systemStats.net > 0 ? 'text-[#00FF41]' : 'text-[#FF3B30] animate-pulse'} transition-colors duration-500`}
+                                        className={`w-[1rem] h-[1rem] ${systemStats.net > 0 ? 'text-[#00FF41]' : 'text-[#FF3B30] animate-pulse'} transition-colors duration-500`}
                                         strokeWidth={2.5}
                                     />
                                     {systemStats.net > 0 && (
@@ -969,14 +968,13 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                             </div>
 
                             { }
-                            <div className="w-[1px] h-4 bg-white/20" />
+                            <div className="w-[1px] h-[1rem] bg-white/20" />
 
                             <div
-                                className="flex items-center gap-1.5 px-2.5 h-8 rounded-[2px] transition-all duration-300 group/time cursor-default"
+                                className="flex items-center gap-1.5 px-2.5 h-[2rem] rounded-[2px] transition-all duration-300 group/time cursor-default"
                             >
                                 <Clock
-                                    size={12}
-                                    className="text-white/60 group-hover/time:text-white/80 transition-colors duration-300"
+                                    className="w-[0.75rem] h-[0.75rem] text-white/60 group-hover/time:text-white/80 transition-colors duration-300"
                                     strokeWidth={2}
                                 />
                                 <DigitalClock />
@@ -1017,15 +1015,15 @@ const Dashboard = ({ onLogout, onRefresh }) => {
                 <div className={`h-16 w-full flex items-center justify-between px-6 shrink-0 ${searchQuery ? 'z-[100]' : 'z-10'} relative`}>
                     { }
                     <div className="relative w-72 h-9 group" style={{ zIndex: searchQuery ? 9999 : 50 }}>
-                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/60 group-focus-within:text-[#F2F2F7] transition-all z-20 pointer-events-none">
-                            <Search size={16} strokeWidth={2.5} />
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#888] group-focus-within:text-[#aaa] transition-all z-20 pointer-events-none">
+                            <Search className="w-[1rem] h-[1rem]" strokeWidth={2.5} />
                         </div>
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search Location/Camera"
-                            className="w-full h-full pl-11 pr-4 bg-[#111113] border border-white/[0.18] rounded-[2px] text-[15px] text-[#F2F2F7] font-medium placeholder-white/30 focus:outline-none focus:border-white/40 focus:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all relative z-10"
+                            className="w-full h-full pl-[2.75rem] pr-4 bg-[#111113] border border-white/[0.18] rounded-[2px] text-[0.9375rem] text-[#888] font-medium placeholder-[#888] focus:outline-none focus:border-white/40 focus:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all relative z-10"
                         />
 
                         { }

@@ -20,6 +20,11 @@
     -webkit-user-drag: none;
 }
 
+html {
+    /* Proportional scaling: sets 16px font-size at a 1920px base width */
+    font-size: clamp(9px, 0.8333vw, 20px);
+}
+
 html,
 body,
 #root {
@@ -83,4 +88,9 @@ body {
 
 .animate-scan-line {
     animation: pulse-scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+input::placeholder {
+    color: #888 !important;
+    opacity: 1 !important;
 }
