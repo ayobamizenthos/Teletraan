@@ -7,16 +7,15 @@ const UpdateNotification = () => {
     const [dismissed, setDismissed] = useState(false);
 
     useEffect(() => {
-        // Only wire up if running in Electron
+
         if (window.api && window.api.onUpdateStatus) {
             window.api.onUpdateStatus((data) => {
                 setUpdateInfo(data);
-                setDismissed(false); // Re-show on new status
+                setDismissed(false);
             });
         }
     }, []);
 
-    // Don't render if no update info, dismissed, or just "checking"/"up-to-date"
     const shouldShow =
         updateInfo &&
         !dismissed &&
@@ -71,15 +70,15 @@ const UpdateNotification = () => {
                 className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] pointer-events-auto"
             >
                 <div className="flex items-center gap-3 bg-[#111111]/95 backdrop-blur-xl border border-white/10 rounded-lg px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-                    {/* Icon */}
+                    {}
                     {content.icon}
 
-                    {/* Text */}
+                    {}
                     <span className="text-[13px] text-white/80 font-medium tracking-wide whitespace-nowrap">
                         {content.text}
                     </span>
 
-                    {/* Progress Bar */}
+                    {}
                     {content.showProgress && (
                         <div className="w-[100px] h-[4px] bg-white/10 rounded-full overflow-hidden">
                             <motion.div
@@ -91,7 +90,7 @@ const UpdateNotification = () => {
                         </div>
                     )}
 
-                    {/* Restart Button */}
+                    {}
                     {content.showRestart && (
                         <button
                             onClick={handleRestart}
@@ -109,7 +108,7 @@ const UpdateNotification = () => {
                         </button>
                     )}
 
-                    {/* Dismiss */}
+                    {}
                     <button
                         onClick={() => setDismissed(true)}
                         className="text-white/30 hover:text-white/70 transition-colors ml-1"

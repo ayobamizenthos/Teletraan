@@ -12,7 +12,6 @@ const WindowControls = ({ color = '#6E6E73', className = "", onReload, showReloa
             window.location.reload()
         }
 
-        // Reset animation after 1s
         setTimeout(() => setIsRefreshing(false), 1000)
     }
 
@@ -35,7 +34,7 @@ const WindowControls = ({ color = '#6E6E73', className = "", onReload, showReloa
                         />
                     </button>
 
-                    <div className="w-[1px] h-4 bg-white/10 mx-1" /> {/* Separator */}
+                    <div className="w-[1px] h-4 bg-white/10 mx-1" /> {}
                 </>
             )}
 
