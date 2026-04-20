@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-latest
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,9 +43,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v1.0 --title "v1.0" --notes "Initial Release" || true
-          gh release edit v1.0 --draft=false || true
-          gh release upload v1.0 dist_electron/*.dmg dist_electron/*mac.zip dist_electron/latest-mac.yml --clobber || true
+          gh release create v1.0 --title "v1.0" --notes "Initial Release" 2>/dev/null || true
+          gh release edit v1.0 --draft=false 2>/dev/null || true
+          shopt -s nullglob
+          for asset in dist_electron/*.dmg dist_electron/*.zip dist_electron/latest-mac.yml; do
+            [ -f "$asset" ] && gh release upload v1.0 "$asset" --clobber
+          done
 
       - name: Upload DMG as artifact (backup)
         uses: actions/upload-artifact@v4
